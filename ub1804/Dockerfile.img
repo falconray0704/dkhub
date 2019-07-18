@@ -1,0 +1,28 @@
+FROM ubuntu:18.04
+
+ARG user
+ARG uid
+ARG group
+ARG gid
+ARG userPassword
+ARG userHome
+
+ENV DEBIAN_FRONTEND noninteractive
+ENTRYPOINT ["bash"]
+EXPOSE 80 21
+
+ENV HOSTNAME="dc"
+
+RUN addgroup --system --gid "$gid" "$group" \
+    && adduser --system --home "$userHome" --shell "/bin/bash" --uid "$uid" --gid "$gid" "$user" \
+    && usermod -p "$userPassword" "$user" \
+    && apt-get update \
+    && apt-get -y install apt-utils \
+    && apt-get -y dist-upgrade \
+    && apt-get -y upgrade \
+    && basicPkgs='sudo vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools' \
+    && apt-get -y install $basicPkgs
+
+#USER $user
+
+
