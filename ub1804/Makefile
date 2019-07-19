@@ -6,12 +6,6 @@ all: dockerImg
 .PHONY:dockerImg
 dockerImg: clean
 	docker build --rm -t rayruan/ub1804:basic \
-				--build-arg "group=ubuntu" \
-				--build-arg "gid=80" \
-				--build-arg "user=ubuntu" \
-				--build-arg	"uid=80" \
-				--build-arg	"userHome=/home/ubuntu" \
-				--build-arg	"userPassword=ubuntu" \
 				-f ./Dockerfile.img .
 .PHONY:run
 run:
