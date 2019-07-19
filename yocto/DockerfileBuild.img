@@ -1,0 +1,15 @@
+FROM rayruan/yocto:basic
+
+
+ARG user
+ARG uid
+ARG group
+ARG gid
+
+RUN groupadd -r "$group" -g "$gid" \
+    && useradd -r -m -u "$uid" -g "$gid" "$user" \
+    && usermod -aG $group root
+
+#USER $user
+
+
