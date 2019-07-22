@@ -10,6 +10,11 @@ RUN groupadd -r "$group" -g "$gid" \
     && useradd -r -m -u "$uid" -g "$gid" "$user" \
     && usermod -aG $group root
 
+COPY ./.vim /home/ray/
+COPY ./.vimrc /home/ray/
+COPY ./.vimrc.local /home/ray/
+
+
 #USER $user
 
 

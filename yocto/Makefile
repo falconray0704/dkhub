@@ -10,12 +10,14 @@ basic: cleanBasic
 
 .PHONY: build
 build: cleanBuild
+	cp -a ~/.vim ~/.vimrc ~/.vimrc.local ./
 	docker build --rm -t rayruan/yocto:build \
 				--build-arg "group=${USER}" \
 				--build-arg "gid=$$(id -u)" \
 				--build-arg "user=${USER}" \
 				--build-arg	"uid=$$(id -g)" \
 				-f ./DockerfileBuild.img .
+	rm -rf ./.vim ./.vimrc ./.vimrc.local
 
 .PHONY:run
 run:
@@ -27,7 +29,8 @@ cleanBasic:
 	docker image prune
 
 .PHONY: cleanBuild
-cleanBasic:
+cleanBuild:
+	rm -rf ./.vim ./.vimrc ./.vimrc.local
 	docker rmi -f rayruan/yocto:build
 	docker image prune
 
