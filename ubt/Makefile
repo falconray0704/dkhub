@@ -1,0 +1,37 @@
+
+.PHONY: all
+all:
+
+#observer
+
+.PHONY:img14
+img14: clean14
+	docker build --rm -t rayruan/ubt:basic1404 -f ./Dockerfile1404.img .
+
+.PHONY:img16
+img16: clean16
+	docker build --rm -t rayruan/ubt:basic1604 -f ./Dockerfile1604.img .
+
+.PHONY:img18
+img18: clean18
+	docker build --rm -t rayruan/ubt:basic1804 -f ./Dockerfile1804.img .
+
+.PHONY:run
+run:
+	docker run --name ub1804 --rm -it --dns "192.168.11.1" --workdir=$$(pwd) --hostname "dc" -v $$(pwd):$$(pwd) rayruan/ub1804:basic
+
+.PHONY: clean14
+clean14:
+	docker rmi -f rayruan/ubt:basic1404
+	docker image prune
+
+.PHONY: clean16
+clean16:
+	docker rmi -f rayruan/ubt:basic1604
+	docker image prune
+
+.PHONY: clean18
+clean18:
+	docker rmi -f rayruan/ubt:basic1804
+	docker image prune
+
