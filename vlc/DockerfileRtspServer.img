@@ -1,0 +1,24 @@
+FROM rayruan/deb-slim:install-vlc
+
+#MAINTAINER Chris Daish <chrisdaish@gmail.com>
+
+ENV DEBIAN_FRONTEND noninteractive
+
+ENV USER vlc
+
+RUN echo -e '\033[36;1m ******* ADD USER ******** \033[0m' \
+        && useradd -d /home/${USER} -m ${USER} \
+        && passwd -d ${USER} \
+        && adduser ${USER} sudo \
+        && mkdir /rtspSrv 
+
+COPY rtspServerRun.sh /rtspSrv/ 
+
+RUN echo -e '\033[36;1m ******* SELECT USER ******** \033[0m'
+USER ${USER}
+
+RUN echo -e '\033[36;1m ******* SELECT WORKING SPACE ******** \033[0m'
+
+#RUN echo -e '\033[36;1m ******* CONTAINER START COMMAND ******** \033[0m'
+#ENTRYPOINT [ "curl", "-s", "https://ip.cn" ]
+
