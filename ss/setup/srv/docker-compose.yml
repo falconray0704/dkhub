@@ -1,0 +1,8 @@
+shadowsocks:
+  image: rayruan/alpine_x86_64:staticSS
+  ports:
+    - "42581:443/tcp"
+    - "42581:443/udp"
+  volumes:
+    - ./config.json:/etc/shadowsocks/configs.json
+  restart: always
