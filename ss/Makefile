@@ -15,6 +15,8 @@ clean:
 deploySrv:
 	rm -rf ~/ssSrv
 	cp -a ./setup/srv ~/ssSrv
+	docker rmi -f rayruan/alpine_x86_64:staticSS
+	docker pull rayruan/alpine_x86_64:staticSS
 
 .PHONY:buildX86_64_StaticSS_Img
 buildX86_64_StaticSS_Img:cleanX86_64_StaticSS_Img
