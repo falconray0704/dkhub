@@ -13,6 +13,6 @@ COPY ./config.json /etc/shadowsocks/
 #CMD [ "/ss-server", "-s ${SERVER_ADDR}", "-p ${SERVER_PORT}", "-k ${PASSWORD}", "-m ${METHOD}", "-t ${TIMEOUT}", "-d ${DNS_ADDRS}", "-u", "${ARGS}" ]
 #CMD [ "/ss-server", "-s ${SERVER_ADDR}", "-p ${SERVER_PORT}", "-k ${PASSWORD}", "-m ${METHOD}", "-t ${TIMEOUT}", "-u" ]
 
-USER nobody
-ENTRYPOINT [ "ss-server", "-c", "/etc/shadowsocks/config.json" ]
+#USER nobody
+ENTRYPOINT [ "ss-server", "--mptcp", "-c", "/etc/shadowsocks/config.json" ]
 

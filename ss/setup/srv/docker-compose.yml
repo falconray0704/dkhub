@@ -4,5 +4,6 @@ shadowsocks:
     - "42581:443/tcp"
     - "42581:443/udp"
   volumes:
-    - ./config.json:/etc/shadowsocks/configs.json
+    - ./config.json:/etc/shadowsocks/config.json
   restart: always
+
