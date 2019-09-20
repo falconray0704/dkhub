@@ -7,6 +7,5 @@
     "method":"chacha20-ietf-poly1305",
     "fast_open": true,
     "no_delay": true,
-    "user": "nobody",
     "mode": "tcp_and_udp"
 }
