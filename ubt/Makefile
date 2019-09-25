@@ -2,6 +2,14 @@
 .PHONY: all
 all:
 
+.PHONY: clean
+clean:
+
+.PHONY: buildAll
+buildAll:cleanAll img14 img16 img18
+
+.PHONY: cleanAll
+cleanAll:clean14 clean16 clean18
 #observer
 
 .PHONY:img14

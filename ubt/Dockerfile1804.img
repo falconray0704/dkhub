@@ -1,28 +1,34 @@
 FROM ubuntu:18.04
 
 
-ENV DEBIAN_FRONTEND=noninteractive
+#ENV DEBIAN_FRONTEND=noninteractive
 #ENV DEBIAN_FRONTEND teletype
 ENTRYPOINT ["bash"]
 EXPOSE 80 21
 
+# refer to https://hub.docker.com/_/ubuntu?tab=description
+#RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    #    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
+#    && basicPkgs='tmux sudo vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
 RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get -y upgrade \
-    && basicPkgs='tmux sudo vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
+    && basicPkgs='vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
     && apt-get -y install $basicPkgs \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && apt-get autoremove
 
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-    && dpkg-reconfigure --frontend=noninteractive locales \
-    && update-locale LANG=en_US.UTF-8
+#RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    #    && dpkg-reconfigure --frontend=noninteractive locales \
+    #&& update-locale LANG=en_US.UTF-8
 
-ENV HOSTNAME="dc"
 
-ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+
+ENV HOSTNAME="1804"
 
 #USER $user
 
