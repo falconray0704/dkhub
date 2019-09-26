@@ -12,21 +12,29 @@ EXPOSE 80 21
 
 #    && basicPkgs='tmux sudo vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
 RUN apt-get update \
+    && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get -y upgrade \
-    && basicPkgs='vim curl git wget tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
-    && apt-get -y install $basicPkgs \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
-    && apt-get autoremove
+    && basicPkgs='zip gawk wget unzip sed curl vim tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
+    && apt-get -y install $basicPkgs
+
+RUN apt-get update \
+        && buildPkgs='build-essential libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev openjdk-8-jdk git-core gcc g++ autoconf automake make bc lzop texinfo gcc-multilib diffstat ' \
+        && apt-get -y install $buildPkgs\
+        && apt-get autoremove
 
 #RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
     #    && dpkg-reconfigure --frontend=noninteractive locales \
     #&& update-locale LANG=en_US.UTF-8
 
 
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
 
 ENV HOSTNAME="1804"
 
