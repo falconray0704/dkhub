@@ -7,7 +7,7 @@ export MBEDTLS_VER=2.16.2
 
 install_pkgs_func()
 {
-	sudo apt-get purge -y libbloom-dev libcork-dev libcorkipset-dev libmbedtls-dev libsodium-dev
+	apt-get purge -y libbloom-dev libcork-dev libcorkipset-dev libmbedtls-dev libsodium-dev
 
     pushd ${ssRoot}
 #    pushd ${depPkgs}

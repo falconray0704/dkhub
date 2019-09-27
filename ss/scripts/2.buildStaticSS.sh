@@ -9,6 +9,7 @@ NC='\033[0m'
 
 [ $# -lt 1 ] && echo "${RED}Invalid args count:$#${NC}"
 
+
 BASE="${PWD}/${buildDir}"
 PREFIX="$BASE/stage"
 SRC="$BASE/src"
@@ -75,39 +76,39 @@ download_sources_func()
 # extract source
 extract_sources_func()
 {
-    arch=$1
+    ARCH=$1
     pushd "${SRC}"
     pwd
-    mkdir -p ${arch}
+    mkdir -p ${ARCH}
     for pkg in LIBEV SODIUM MBEDTLS PCRE CARES SHADOWSOCKS
     do
         name=${pkg}_NAME
         url=${pkg}_URL
         filename="${!name}".tar.gz
         echo "Extracting: ${filename}..."
-        tar xf ${filename} -C ${arch}
+        tar xf ${filename} -C ${ARCH}
     done
     popd
 }
 
 dk_extract_sourcess() {
-    for arch in x86_64 aarch64
+    for ARCH in x86_64 aarch64
     do
-        extract_sources_func $arch
+        extract_sources_func $ARCH
     done
 }
 
 # build deps
 build_deps() {
     # 静态编译参数
-    arch=$1
-    host=$arch-linux-gnu
-    prefix=${PREFIX}/$arch
+    ARCH=$1
+    host=$ARCH-linux-gnu
+    prefix=${PREFIX}/$ARCH
     args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
 
     # libev
     pwd
-    pushd "$SRC/${arch}/$LIBEV_NAME"
+    pushd "$SRC/${ARCH}/$LIBEV_NAME"
     ./configure $args
     make clean
     make -j8
@@ -115,14 +116,14 @@ build_deps() {
     popd
 
     # mbedtls
-    pushd "$SRC/${arch}/$MBEDTLS_NAME"
+    pushd "$SRC/${ARCH}/$MBEDTLS_NAME"
     make clean
     make DESTDIR="${prefix}" CC="${host}-gcc" AR="${host}-ar" LD="${host}-ld" LDFLAGS=-static install -j8
     unset DESTDIR
     popd
 
     # sodium
-    pushd "$SRC/${arch}/$SODIUM_NAME"
+    pushd "$SRC/${ARCH}/$SODIUM_NAME"
     ./configure $args
     make clean
     make -j8
@@ -130,7 +131,7 @@ build_deps() {
     popd
 
     # pcre
-    pushd "$SRC/${arch}/$PCRE_NAME"
+    pushd "$SRC/${ARCH}/$PCRE_NAME"
     ./configure $args \
       --enable-unicode-properties --enable-utf8
     make clean
@@ -139,7 +140,7 @@ build_deps() {
     popd
 
     # c-ares
-    pushd "$SRC/${arch}/$CARES_NAME"
+    pushd "$SRC/${ARCH}/$CARES_NAME"
     ./configure $args
     make clean
     make -j8
@@ -155,12 +156,12 @@ dk_deps() {
 }
 
 build_proj() {
-    arch=$1
-    host=$arch-linux-gnu
-    prefix=${DIST}/$arch
-    dep=${PREFIX}/$arch 
+    ARCH=$1
+    host=$ARCH-linux-gnu
+    prefix=${DIST}/$ARCH
+    dep=${PREFIX}/$ARCH 
 
-    pushd "$SRC/${arch}/$SHADOWSOCKS_NAME"
+    pushd "$SRC/${ARCH}/$SHADOWSOCKS_NAME"
     ./configure LIBS="-lpthread -lm" \
         LDFLAGS="-Wl,-static -static -static-libgcc -L$dep/lib" \
         CFLAGS="-I$dep/include" \
@@ -179,22 +180,22 @@ build_proj() {
 }
 
 dk_build() {
-    for arch in x86_64 aarch64
+    for ARCH in x86_64 aarch64
     do
-        build_proj $arch
+        build_proj $ARCH
     done
 }
 
 archClean() 
 {
-    arch=$1
-    rm -rf ${PREFIX}/${arch} ${SRC}/${arch} ${DIST}/${arch}
+    ARCH=$1
+    rm -rf ${PREFIX}/${ARCH} ${SRC}/${ARCH} ${DIST}/${ARCH}
 }
 
 dk_clean() {
-    for arch in x86_64 aarch64
+    for ARCH in x86_64 aarch64
     do
-        archClean $arch
+        archClean $ARCH
     done
 }
 

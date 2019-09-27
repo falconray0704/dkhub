@@ -1,6 +1,7 @@
 
 export ssRootDir=ssRoot
 export buildDir=ssBuild
+LOCAL_ARCH := $(shell arch)
 
 .PHONY: all
 all:
@@ -15,16 +16,16 @@ clean:
 deploySrv:
 	rm -rf ~/ssSrv
 	cp -a ./setup/srv ~/ssSrv
-	docker rmi -f rayruan/alpine_x86_64:staticSS
-	docker pull rayruan/alpine_x86_64:staticSS
+	docker rmi -f rayruan/alpine:staticSS
+	docker pull rayruan/alpine:staticSS
 
-.PHONY:buildX86_64_StaticSS_Img
-buildX86_64_StaticSS_Img:cleanX86_64_StaticSS_Img
-	docker build --rm -t rayruan/alpine_x86_64:staticSS -f ./2.Build_StaticSS_Img ${PWD}/ssBuild/dist/x86_64/bin
+.PHONY:buildImgStaticSS
+buildImgStaticSS:cleanImgStaticSS
+	docker build --rm -t rayruan/alpine:staticSS -f ./2.BuildImgStaticSS ${PWD}/ssBuild/dist/${LOCAL_ARCH}/bin
 
-.PHONY: cleanX86_64_StaticSS_Img
-cleanX86_64_StaticSS_Img:
-	docker rmi -f rayruan/alpine_x86_64:staticSS
+.PHONY: cleanImgStaticSS
+cleanImgStaticSS:
+	docker rmi -f rayruan/alpine:staticSS
 	docker image prune
 	
 .PHONY:buildStaticSS
@@ -35,24 +36,24 @@ buildStaticSS:
 		-e buildDir \
 		-v ${PWD}:/${ssRootDir} \
 		--entrypoint "/ssRoot/scripts/2.buildStaticSS.sh" \
-		rayruan/ubt1604:ss-buildEnvStatic all 
+		rayruan/ubt1604:ssBuilderStatic ${LOCAL_ARCH} 
 
-.PHONY:runBuildEnvStatic
-runBuildEnvStatic:
+.PHONY:runBuilderStatic
+runBuilderStatic:
 	mkdir -p ${buildDir}
 	docker run --rm -it \
 		--hostname "ssBuild" \
 		-e buildDir \
 		-v ${PWD}:/${ssRootDir} \
-		rayruan/ubt1604:ss-buildEnvStatic
+		rayruan/ubt1604:ssBuilderStatic
 
-.PHONY:buildEnvStatic
-buildEnvStatic:cleanBuildEnvStatic
-	docker build --rm -t rayruan/ubt1604:ss-buildEnvStatic -f ./1.BuildEnvStatic .
+.PHONY:builderStatic
+builderStatic:cleanBuilderStatic
+	docker build --rm -t rayruan/ubt1604:ssBuilderStatic -f ./1.builderStatic .
 
-.PHONY: cleanBuildEnvStatic
-cleanBuildEnvStatic:
-	docker rmi -f rayruan/ubt1604:ss-buildEnvStatic
+.PHONY: cleanBuilderStatic
+cleanBuilderStatic:
+	docker rmi -f rayruan/ubt1604:ssBuilderStatic
 	docker image prune
 
 
@@ -64,26 +65,26 @@ buildSS:
 		-e buildDir \
 		-v ${PWD}:/${ssRootDir} \
 		--entrypoint "/ssRoot/scripts/2.buildSS.sh" \
-		rayruan/ubt1604:ss-buildEnv build 
+		rayruan/ubt1604:ssBuilder build 
 
-.PHONY:runBuildEnv
-runBuildEnv:
+.PHONY:runBuilder
+runBuilder:
 	mkdir -p ${buildDir}
 	docker run --rm -it \
 		--hostname "ssBuild" \
 		-e buildDir \
 		-v ${PWD}:/${ssRootDir} \
-		rayruan/ubt1604:ss-buildEnv
+		rayruan/ubt1604:ssBuilder
 
 #		-v ${PWD}/${buildDir}:/${ssRootDir}/${buildDir} \
 
-.PHONY:buildEnv
-buildEnv:cleanBuildEnv
-	docker build --rm -t rayruan/ubt1604:ss-buildEnv -f ./1.BuildEnv .
+.PHONY:builder
+builder:cleanBuilder
+	docker build --rm -t rayruan/ubt1604:ssBuilder -f ./1.builder .
 
-.PHONY: cleanBuildEnv
-cleanBuildEnv:
+.PHONY: cleanBuilder
+cleanBuilder:
 #	$(bash ./scripts/1.installBuildDeps.sh clean)
-	docker rmi -f rayruan/ubt1604:ss-buildEnv
+	docker rmi -f rayruan/ubt1604:ssBuilder
 	docker image prune
 

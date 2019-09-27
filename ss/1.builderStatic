@@ -1,11 +1,13 @@
 #FROM debian:stretch-slim
-FROM ubuntu:16.04
+#FROM ubuntu:16.04
+FROM rayruan/ubt:basic1604
 
+#        && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y apt-utils git wget ca-certificates build-essential autoconf libtool automake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu aria2 python \
 
 RUN apt-get update \
-        && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y apt-utils \
-        && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y git wget ca-certificates \
-        && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y gettext build-essential autoconf libtool libpcre3-dev asciidoc xmlto libev-dev libc-ares-dev automake \
+        && basicPkgs='git wget ca-certificates' \
+        && buildPkgs='build-essential autoconf libtool automake aria2 python' \
+        && apt-get install --no-install-recommends -y $basicPkgs $buildPkgs \
         && apt-get --purge autoremove -y \
         && apt-get autoclean -y
 
@@ -28,7 +30,6 @@ WORKDIR ${ssRoot}
 RUN pwd \
     && ls -al \
     && mkdir depPkgs \
-    && ./scripts/1.installBuildDeps.sh install \
     && ls -al \
     && rm -rf ./*
 
