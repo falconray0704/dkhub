@@ -206,12 +206,12 @@ mkdir -p ${DIST}
 download_sources_func
 
 case $1 in
-    "x86_64") echo "Building static SS for x86..."
-        archClean x86_64
-        extract_sources_func x86_64
-        build_deps x86_64
-        build_proj x86_64
-        echo "Building static SS for x86 finished."
+    "x86_64"|"armv7l") echo "Building static SS for $1..."
+        archClean $1
+        extract_sources_func $1
+        build_deps $1
+        build_proj $1
+        echo "Building static SS for $1 finished."
         ;;
     "aarch64") echo "Building static SS for aarch64..."
         archClean aarch64
