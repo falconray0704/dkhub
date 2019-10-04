@@ -102,9 +102,10 @@ dk_extract_sourcess() {
 build_deps() {
     # 静态编译参数
     ARCH=$1
-    host=$ARCH-linux-gnu
+#    host=$ARCH-linux-gnu
     prefix=${PREFIX}/$ARCH
-    args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
+#    args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
+    args="--prefix=${prefix} --disable-shared --enable-static"
 
     # libev
     pwd
@@ -118,7 +119,8 @@ build_deps() {
     # mbedtls
     pushd "$SRC/${ARCH}/$MBEDTLS_NAME"
     make clean
-    make DESTDIR="${prefix}" CC="${host}-gcc" AR="${host}-ar" LD="${host}-ld" LDFLAGS=-static install -j8
+#    make DESTDIR="${prefix}" CC="${host}-gcc" AR="${host}-ar" LD="${host}-ld" LDFLAGS=-static install -j8
+    make DESTDIR="${prefix}" LDFLAGS=-static install -j8
     unset DESTDIR
     popd
 
@@ -157,15 +159,15 @@ dk_deps() {
 
 build_proj() {
     ARCH=$1
-    host=$ARCH-linux-gnu
+#    host=$ARCH-linux-gnu
     prefix=${DIST}/$ARCH
     dep=${PREFIX}/$ARCH 
 
     pushd "$SRC/${ARCH}/$SHADOWSOCKS_NAME"
+#        --host=${host} \
     ./configure LIBS="-lpthread -lm" \
         LDFLAGS="-Wl,-static -static -static-libgcc -L$dep/lib" \
         CFLAGS="-I$dep/include" \
-        --host=${host} \
         --prefix=${prefix} \
         --disable-ssp \
         --disable-documentation \
