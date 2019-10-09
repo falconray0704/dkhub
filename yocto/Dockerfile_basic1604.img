@@ -1,4 +1,4 @@
-FROM rayruan/ubt:basic1604
+FROM rayruan/ubt1604:basic
 
 EXPOSE 80 21
 
