@@ -17,7 +17,7 @@ RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get -y upgrade \
     && basicPkgs='zip gawk wget unzip sed curl vim tree htop iputils-ping pigz pbzip2 pxz dnsutils net-tools locales' \
-    && buildPkgs='build-essential libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev openjdk-8-jdk git-core cvs subversion gcc g++ autoconf automake make bc lzop texinfo gcc-multilib coreutils texi2html docbook-utils asciidoc help2man diffstat ' \
+    && buildPkgs='build-essential libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev openjdk-7-jdk git-core cvs subversion gcc g++ autoconf automake make bc lzop texinfo gcc-multilib coreutils texi2html docbook-utils asciidoc help2man diffstat ' \
     && apt-get -y install $basicPkgs $buildPkgs\
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && apt-get autoremove
