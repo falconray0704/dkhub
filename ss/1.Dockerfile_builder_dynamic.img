@@ -1,6 +1,4 @@
-#FROM debian:stretch-slim
-#FROM ubuntu:16.04
-FROM rayruan/ubt:basic1604
+FROM rayruan/ubt1604_arch:basic
 
 
 RUN apt-get update \

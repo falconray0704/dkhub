@@ -1,2 +1,7 @@
 ssBuild
 
+*.swp
+
+*.img.x86_64
+*.img.armv7l
+
