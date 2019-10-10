@@ -7,9 +7,35 @@
 set -e
 #set -x
 
-ssRootDir=ssRoot
-buildDir=ssBuild
-LOCAL_ARCH=$(arch)
+SS_ROOT_DIR=ssRoot
+BUILD_DIR=ssBuild
+ARCH=$(arch)
+
+build_ss_target_func()
+{
+    TARGET=$1
+    case ${TARGET} in
+        dynamic) echo "Building dynamic SS..."
+            mkdir -p ${BUILD_DIR}
+            docker run --rm -it \
+                --hostname "ssBuild" \
+                -v ${PWD}:/${SS_ROOT_DIR} \
+                --entrypoint "/ssRoot/scripts/2.buildSS.sh" \
+                rayruan/ss_builder_${ARCH}:${TARGET} build ${BUILD_DIR}
+        ;;
+        static) echo "Building static SS..."
+            mkdir -p ${BUILD_DIR}
+            docker run --rm -it \
+                --hostname "ssBuild" \
+                -v ${PWD}:/${SS_ROOT_DIR} \
+                --entrypoint "/ssRoot/scripts/2.buildStaticSS.sh" \
+                rayruan/ss_builder_${ARCH}:${TARGET} ${ARCH} ${BUILD_DIR}
+        ;;
+        *) echo "Unsupported target: ${TARGET}."
+        exit 1
+    esac
+}
+
 
 builder_img_func()
 {
@@ -55,7 +81,7 @@ usage_func()
     echo "./build.sh <cmd> <image tag>"
     echo ""
     echo "Supported cmd:"
-    echo "[ builder, cleanBuilder ]"
+    echo "[ builder, cleanBuilder, build ]"
     echo ""
     echo "Supported image tags:"
     echo "[ dynamic, static ]"
@@ -64,14 +90,15 @@ usage_func()
 
 [ $# -lt 2 ] && echo "Invalid args count:$# " && usage_func && exit 1
 
-ARCH=$(arch)
-
 case $1 in
     builder) echo "Building SS builder rayruan/ss_builder_${ARCH}:$2 ..."
         builder_target_func $2
         ;;
     cleanBuilder) echo "Removing SS builder rayruan/ss_builder_${ARCH}:$2 ..."
         do_builder_clean_img_func $2
+        ;;
+    build) echo "Building dynamic SS from github ..."
+        build_ss_target_func $2
         ;;
     *) echo "Unsupported cmd:$1."
         usage_func

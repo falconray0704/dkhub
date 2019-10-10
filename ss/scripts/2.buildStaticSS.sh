@@ -7,10 +7,11 @@ set -x
 RED='\033[0;31m'
 NC='\033[0m'
 
-[ $# -lt 1 ] && echo "${RED}Invalid args count:$#${NC}"
+[ $# -lt 2 ] && echo "${RED}Invalid args count:$#${NC}"
 
 
-BASE="${PWD}/${buildDir}"
+BUILD_DIR=$2
+BASE="${PWD}/${BUILD_DIR}"
 PREFIX="$BASE/stage"
 SRC="$BASE/src"
 DIST="$BASE/dist"

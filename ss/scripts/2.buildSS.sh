@@ -3,9 +3,11 @@
 
 export SS_VER="3.3.1"
 
+BUILD_DIR=$2
+
 build_ss_func()
 {
-    pushd ${buildDir}
+    pushd ${BUILD_DIR}
 #    rm -rf shadowsocks-libev-$SS_VER
 #    rm -rf v$SS_VER.tar.gz
     rm -rf shadowsocks-libev
@@ -29,7 +31,7 @@ build_ss_func()
 
 case $1 in
     "build") echo "Building ss ..."
-        build_ss_func
+        build_ss_func $2
         echo "Building ss finished."
         ;;
     *) echo "unknow action"
