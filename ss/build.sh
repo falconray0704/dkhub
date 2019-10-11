@@ -11,6 +11,30 @@ SS_ROOT_DIR=ssRoot
 BUILD_DIR=ssBuild
 ARCH=$(arch)
 
+build_ss_img_func()
+{
+    TARGET=$1
+    case ${TARGET} in
+        dynamic)
+            echo "Do not support dynamic link SS docker image..."
+        ;;
+        static) echo "Building static SS image..."
+            do_clean_ss_img_func ${TARGET}
+            docker build --rm -t rayruan/ss_${ARCH}:${TARGET} -f ./2.Dockerfile_ss_${TARGET}.img ${PWD}/ssBuild/dist/${ARCH}/bin
+        ;;
+        *) echo "Unsupported target: ${TARGET}."
+        exit 1
+    esac
+}
+
+do_clean_ss_img_func()
+{
+    TARGET=$1
+    ARCH=$(arch)
+	docker rmi -f rayruan/ss_${ARCH}:${TARGET}
+	docker image prune
+}
+
 build_ss_target_func()
 {
     TARGET=$1
@@ -81,7 +105,7 @@ usage_func()
     echo "./build.sh <cmd> <image tag>"
     echo ""
     echo "Supported cmd:"
-    echo "[ builder, cleanBuilder, build ]"
+    echo "[ builder, cleanBuilder, build, img, cleanImg ]"
     echo ""
     echo "Supported image tags:"
     echo "[ dynamic, static ]"
@@ -99,6 +123,12 @@ case $1 in
         ;;
     build) echo "Building dynamic SS from github ..."
         build_ss_target_func $2
+        ;;
+    img) echo "Building SS image rayruan/ss_${ARCH}:$2 ..."
+        build_ss_img_func $2
+        ;;
+    cleanImg) echo "Removing SS image rayruan/ss_${ARCH}:$2 ..."
+        do_clean_ss_img_func $2
         ;;
     *) echo "Unsupported cmd:$1."
         usage_func
