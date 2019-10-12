@@ -1,5 +1,5 @@
 shadowsocks:
-  image: rayruan/alpine_x86_64:staticSS
+  image: rayruan/ss_arch:static
   ports:
     - "42581:443/tcp"
     - "42581:443/udp"

@@ -19,11 +19,15 @@ deploy_ss_img_func()
             echo "Do not support dynamic link SS docker image..."
         ;;
         static) echo "Deploying static SS image..."
-            rm -rf ~/ssSrv
-            cp -a ./setup/srv ~/ssSrv
             docker rmi -f rayruan/ss_${ARCH}:${TARGET}
             docker image prune
             docker pull rayruan/ss_${ARCH}:${TARGET}
+
+            rm -rf ~/ssSrv
+            cp -a ./setup/srv ~/ssSrv
+            pushd ~/ssSrv
+            sed -i "s/ss_arch/ss_${ARCH}/" ./docker-compose.yml
+            popd
         ;;
         *) echo "Unsupported target: ${TARGET}."
         exit 1
