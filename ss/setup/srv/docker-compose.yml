@@ -5,5 +5,9 @@ shadowsocks:
     - "42581:443/udp"
   volumes:
     - ./config.json:/etc/shadowsocks/config.json
+  entrypoint:
+    - ss-server
+    - -c
+    - /etc/shadowsocks/config.json
   restart: always
 
