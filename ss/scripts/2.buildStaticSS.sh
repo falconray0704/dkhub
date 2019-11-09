@@ -50,7 +50,7 @@ CARES_NAME=c-ares-${CARES_VER}
 CARES_URL=https://c-ares.haxx.se/download/${CARES_NAME}.tar.gz
 
 #shadowsocks-libev
-SHADOWSOCKS_VER=3.3.1
+SHADOWSOCKS_VER=3.3.3
 #SHADOWSOCKS_VER=3.2.0
 SHADOWSOCKS_NAME=shadowsocks-libev-${SHADOWSOCKS_VER}
 SHADOWSOCKS_URL=https://github.com/shadowsocks/shadowsocks-libev/releases/download/v${SHADOWSOCKS_VER}/${SHADOWSOCKS_NAME}.tar.gz

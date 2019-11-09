@@ -7,6 +7,7 @@
 set -e
 #set -x
 
+DNS_IP="192.168.11.1"
 SS_ROOT_DIR=ssRoot
 BUILD_DIR=ssBuild
 ARCH=$(arch)
@@ -65,6 +66,7 @@ build_ss_target_func()
         dynamic) echo "Building dynamic SS..."
             mkdir -p ${BUILD_DIR}
             docker run --rm -it \
+		--dns=${DNS_IP} \
                 --hostname "ssBuild" \
                 -v ${PWD}:/${SS_ROOT_DIR} \
                 --entrypoint "/ssRoot/scripts/2.buildSS.sh" \
@@ -73,6 +75,7 @@ build_ss_target_func()
         static) echo "Building static SS..."
             mkdir -p ${BUILD_DIR}
             docker run --rm -it \
+		--dns=${DNS_IP} \
                 --hostname "ssBuild" \
                 -v ${PWD}:/${SS_ROOT_DIR} \
                 --entrypoint "/ssRoot/scripts/2.buildStaticSS.sh" \
