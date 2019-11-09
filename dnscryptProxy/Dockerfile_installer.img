@@ -1,0 +1,10 @@
+FROM alpine:latest
+
+RUN mkdir -p /dnscrypt-proxy
+
+COPY . /dnscrypt-proxy
+
+WORKDIR /
+
+ENTRYPOINT [ "cp", "-a", "/dnscrypt-proxy", "/target/" ]
+
