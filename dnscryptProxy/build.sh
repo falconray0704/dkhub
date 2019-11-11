@@ -68,11 +68,22 @@ config_func()
     popd
 }
 
-install_service()
+install_service_func()
 {
     pushd ${HOME}/dnscrypt-proxy
     ./dnscrypt-proxy -service install
     popd
+}
+
+uninstall_service_func()
+{
+    pushd ${HOME}/dnscrypt-proxy
+    sudo ./dnscrypt-proxy -service stop
+    sudo ./dnscrypt-proxy -service uninstall
+    popd
+
+#    sudo rm -rf  ${HOME}/dnscrypt-proxy
+#	sudo sed -i '/^static domain_name_servers=.*/d' /etc/dhcpcd.conf
 }
 
 usage_func()
@@ -80,7 +91,7 @@ usage_func()
     echo "./build.sh <cmd> <target>"
     echo ""
     echo "Supported cmd:"
-    echo "[ get, build, install ]"
+    echo "[ get, build, install, uninstall ]"
     echo ""
     echo "Supported target:"
     echo "[ src, dns, service, installer ]"
@@ -128,10 +139,25 @@ case $1 in
         elif [ $2 == "service" ]
         then
             echoY "Installing dnscrypt-proxy service..."
-            install_service
+            install_service_func
         else
-            echoR "Unknow target:$2, only support installing target [dns, service]."
+            echoR "Unknow target:$2, only support installing targets [dns, service]."
         fi
+        echoG "Install $2 finished."
+        ;;
+    uninstall) echoY "Uninstalling..."
+        if [ $2 == "dns" ] 
+        then
+            echoY "Uinstalling dnscrypt-proxy service ..."
+            sudo rm -rf ${HOME}/dnscrypt-proxy
+        elif [ $2 == "service" ]
+        then
+            echoY "Installing dnscrypt-proxy service..."
+            uninstall_service_func
+        else
+            echoR "Unknow target:$2, only support uninstalling targets [dns, service]."
+        fi
+        echoG "Uninstall $2 finished."
         ;;
     *) echo "Unsupported cmd:$1."
         usage_func
