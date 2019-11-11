@@ -45,6 +45,7 @@ build_latest_func()
 
 #    docker run --rm -it -v ${TOP_DIR}:${TOP_DIR} -v ${GOPATH_DIR}:/gopath -w ${SRC_BUILD_DIR} --entrypoint="/bin/bash" --env GOPATH=/gopath golang 
     docker run --rm -it -v ${TOP_DIR}:${TOP_DIR} -v ${GOPATH_DIR}:/gopath -w ${SRC_BUILD_DIR} --env GOPATH=/gopath golang go build -ldflags="-s -w" -o dnscrypt-proxy-${ARCH}
+#    docker run --rm -it -v ${TOP_DIR}:${TOP_DIR} -v ${GOPATH_DIR}:/gopath -w ${SRC_BUILD_DIR} --env GOPATH=/gopath --dns="192.168.11.1" golang go build -ldflags="-s -w" -o dnscrypt-proxy-${ARCH}
 
 
     rm -rf ${DEST_DIR}
@@ -119,7 +120,7 @@ case $1 in
         elif [ $2 == "installer" ]
         then
             echo "Building dnscrypt-proxy docker image for deployment..."
-            docker rmi rayruan/dnscrypt-proxy_${ARCH}:installer
+            docker rmi -f rayruan/dnscrypt-proxy_${ARCH}:installer
             docker image prune
             docker build --rm -t rayruan/dnscrypt-proxy_${ARCH}:installer -f Dockerfile_installer.img ${DEST_DIR}
         else
@@ -132,10 +133,14 @@ case $1 in
             echoY "Installing dnscrypt-proxy to your ${HOME}..."
             sudo rm -rf ${HOME}/dnscrypt-proxy
             docker run --rm -it -v ${HOME}:/target rayruan/dnscrypt-proxy_${ARCH}:installer 
-            sudo chown -hR $(users):$(users) ${HOME}/dnscrypt-proxy
+	    USER_NAME=$(whoami)
+	    #echo "### ${USER_NAME}"
+            sudo chown -hR ${USER_NAME}:${USER_NAME} ${HOME}/dnscrypt-proxy
             cp dnsCryptSrc/public-resolvers.md* ${HOME}/dnscrypt-proxy/
 
             config_func
+	    cp ./dnsCryptSrc/public* ${HOME}/dnscrypt-proxy/
+
         elif [ $2 == "service" ]
         then
             echoY "Installing dnscrypt-proxy service..."
