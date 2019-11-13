@@ -1,8 +1,8 @@
 shadowsocks:
   image: rayruan/ss_arch:static
   ports:
-    - "42581:443/tcp"
-    - "42581:443/udp"
+    - "443:443/tcp"
+    - "443:443/udp"
   volumes:
     - ./config.json:/etc/shadowsocks/config.json
   entrypoint:
