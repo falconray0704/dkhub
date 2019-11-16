@@ -72,7 +72,7 @@ config_func()
 install_service_func()
 {
     pushd ${HOME}/dnscrypt-proxy
-    ./dnscrypt-proxy -service install
+    sudo ./dnscrypt-proxy -service install
     popd
 }
 
