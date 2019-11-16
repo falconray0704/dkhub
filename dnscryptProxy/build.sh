@@ -133,14 +133,13 @@ case $1 in
             echoY "Installing dnscrypt-proxy to your ${HOME}..."
             sudo rm -rf ${HOME}/dnscrypt-proxy
             docker run --rm -it -v ${HOME}:/target rayruan/dnscrypt-proxy_${ARCH}:installer 
-	    USER_NAME=$(whoami)
-	    #echo "### ${USER_NAME}"
+	        USER_NAME=$(whoami)
+	        #echo "### ${USER_NAME}"
             sudo chown -hR ${USER_NAME}:${USER_NAME} ${HOME}/dnscrypt-proxy
             cp dnsCryptSrc/public-resolvers.md* ${HOME}/dnscrypt-proxy/
 
             config_func
-	    cp ./dnsCryptSrc/public* ${HOME}/dnscrypt-proxy/
-
+	        cp ./dnsCryptSrc/public* ${HOME}/dnscrypt-proxy/
         elif [ $2 == "service" ]
         then
             echoY "Installing dnscrypt-proxy service..."
