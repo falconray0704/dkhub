@@ -178,6 +178,7 @@ build_proj() {
         --with-cares="$dep"
     make clean
     make install-strip -j8
+    cp ./debian/shadowsocks-libev-*.service ${prefix}/bin/
     popd
     cp ./setup/srv/* ${prefix}/bin/
 }

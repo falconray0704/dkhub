@@ -6,9 +6,11 @@
 FROM alpine
 
 COPY ./ss-* /bin/
+#COPY ./3.installSS.sh /bin/
 
 RUN mkdir -p /etc/shadowsocks
 COPY ./config.json /etc/shadowsocks/
+COPY ./shadowsocks-libev-*.service /etc/shadowsocks/
 
 #CMD [ "/ss-server", "-s ${SERVER_ADDR}", "-p ${SERVER_PORT}", "-k ${PASSWORD}", "-m ${METHOD}", "-t ${TIMEOUT}", "-d ${DNS_ADDRS}", "-u", "${ARGS}" ]
 #CMD [ "/ss-server", "-s ${SERVER_ADDR}", "-p ${SERVER_PORT}", "-k ${PASSWORD}", "-m ${METHOD}", "-t ${TIMEOUT}", "-u" ]
