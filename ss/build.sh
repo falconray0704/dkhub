@@ -31,16 +31,9 @@ deploy_ss_clt_func()
             sudo rm -rf ${SS_CLT_DEPLOY_PATH}/ssredir
             mkdir -p ${SS_CLT_DEPLOY_PATH}/ssredir
 
-#            docker run --rm -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir rayruan/ss_installer_${ARCH}:${TARGET}
-#            docker run --rm -it -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir --entrypoint "/bin/sh" rayruan/ss_installer_${ARCH}:${TARGET}
             docker run --rm -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir rayruan/ss_installer_${ARCH}:${TARGET}
 
             sudo chown -hR ${USER_NAME}:${USER_NAME} ${SS_CLT_DEPLOY_PATH}/ssredir
-
-#                --entrypoint="/bin/cp /bin/ss-redir /ssredir/ && /bin/cp /etc/shadowsocks/*.service /ssredir/" \
-#            docker run --rm -it -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir \
-#                --entrypoint="/bin/sh" \
-#                rayruan/ss_${ARCH}:${TARGET}
         ;;
         *) echo "Unsupported target: ${TARGET}."
         exit 1
@@ -79,6 +72,8 @@ build_ss_img_func()
         ;;
         static) echo "Building static SS image..."
             do_clean_ss_img_func ${TARGET}
+            sudo cp ./configs/config.json ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
+            sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
             docker build --rm -t rayruan/ss_${ARCH}:${TARGET} -f ./2.Dockerfile_ss_${TARGET}.img ${PWD}/ssBuild/dist/${ARCH}/bin
 
             cp ./3.Dockerfile_installer_${TARGET}.img ./3.Dockerfile_installer_${TARGET}.img.${ARCH}
@@ -124,6 +119,7 @@ build_ss_target_func()
                 -v ${PWD}:/${SS_ROOT_DIR} \
                 --entrypoint "/${SS_ROOT_DIR}/scripts/2.buildStaticSS.sh" \
                 rayruan/ss_builder_${ARCH}:${TARGET} ${ARCH} ${BUILD_DIR}
+
         ;;
         *) echo "Unsupported target: ${TARGET}."
         exit 1
