@@ -9,7 +9,7 @@ set -e
 
 . ../libShell/echo_color.lib
 
-LATEST_VERSION="2.0.31"
+LATEST_VERSION="2.0.33"
 ARCH=$(arch)
 
 TOP_DIR=$(cd ../ && pwd -P)
