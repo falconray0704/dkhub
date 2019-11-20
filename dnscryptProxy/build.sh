@@ -66,6 +66,11 @@ config_func()
 	sed -i "s/.*force_tcp =.*/force_tcp = true/" dnscrypt-proxy.toml
 	sed -i "s/^timeout =.*/timeout = 3000/" dnscrypt-proxy.toml
 
+    echoY "Downloading public-resolvers..."
+    set +e
+    ./dnscrypt-proxy
+    set -e
+
     popd
 }
 
