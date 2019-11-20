@@ -71,6 +71,9 @@ config_func()
 
 install_service_func()
 {
+	sudo sed -i '/^static domain_name_servers=.*/d' /etc/dhcpcd.conf
+	sudo sed -i '/^#static domain_name_servers=192.168.1.1$/a\static domain_name_servers=127.0.0.1' /etc/dhcpcd.conf
+
     pushd ${HOME}/dnscrypt-proxy
     sudo ./dnscrypt-proxy -service install
     popd
@@ -83,8 +86,7 @@ uninstall_service_func()
     sudo ./dnscrypt-proxy -service uninstall
     popd
 
-#    sudo rm -rf  ${HOME}/dnscrypt-proxy
-#	sudo sed -i '/^static domain_name_servers=.*/d' /etc/dhcpcd.conf
+	sudo sed -i '/^static domain_name_servers=.*/d' /etc/dhcpcd.conf
 }
 
 usage_func()
