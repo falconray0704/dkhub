@@ -1,0 +1,10 @@
+FROM alpine:latest
+
+#RUN mkdir -p /deployPkgs
+
+COPY . /deployPkgs
+
+WORKDIR /
+
+ENTRYPOINT [ "cp", "-a", "/deployPkgs", "/target/" ]
+
