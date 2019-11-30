@@ -7,23 +7,33 @@
 set -e
 #set -x
 
+. ../libShell/echo_color.lib
+
+ARCH=$(arch)
+USER_NAME=$(id -un)
+GROUP_NAME=$(id -gn)
+
 DNS_IP="192.168.11.1"
 SS_ROOT_DIR=ssRoot
 BUILD_DIR=ssBuild
-ARCH=$(arch)
-USER_NAME=$(whoami)
 
-SS_SRV_DEPLOY_PATH=${HOME}
-SS_CLT_DEPLOY_PATH=${HOME}
+TOP_PATH=$(dirname ${PWD})
+
+RELEASE_ROOT_DIR="deployPkgs"
+RELEASE_PATH=${TOP_PATH}/${RELEASE_ROOT_DIR}/${ARCH}
+
+SS_SRV_DEPLOY_PATH=${HOME}/${RELEASE_ROOT_DIR}
+SS_CLT_DEPLOY_PATH=${HOME}/${RELEASE_ROOT_DIR}
+
 
 deploy_ss_clt_func()
 {
     TARGET=$1
     case ${TARGET} in
         dynamic)
-            echo "Do not support dynamic link SS docker image..."
+            echoR "Do not support dynamic link SS docker image..."
         ;;
-        static) echo "Deploying static SS ss-redir ..."
+        static) echoY "Deploying static SS ss-redir ..."
 #            docker rmi -f rayruan/ss_${ARCH}:${TARGET}
 #            docker image prune
 #            docker pull rayruan/ss_${ARCH}:${TARGET}
@@ -33,9 +43,9 @@ deploy_ss_clt_func()
 
             docker run --rm -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir rayruan/ss_installer_${ARCH}:${TARGET}
 
-            sudo chown -hR ${USER_NAME}:${USER_NAME} ${SS_CLT_DEPLOY_PATH}/ssredir
+            sudo chown -hR ${USER_NAME}:${GROUP_NAME} ${SS_CLT_DEPLOY_PATH}/ssredir
         ;;
-        *) echo "Unsupported target: ${TARGET}."
+        *) echoR "Unsupported target: ${TARGET}."
         exit 1
     esac
 }
@@ -45,9 +55,9 @@ deploy_ss_srv_func()
     TARGET=$1
     case ${TARGET} in
         dynamic)
-            echo "Do not support dynamic link SS docker image..."
+            echoR "Do not support dynamic link SS docker image..."
         ;;
-        static) echo "Deploying static SS server ..."
+        static) echoY "Deploying static SS server ..."
             docker rmi -f rayruan/ss_${ARCH}:${TARGET}
             docker image prune
             docker pull rayruan/ss_${ARCH}:${TARGET}
@@ -68,9 +78,9 @@ build_ss_img_func()
     TARGET=$1
     case ${TARGET} in
         dynamic)
-            echo "Do not support dynamic link SS docker image..."
+            echoR "Do not support dynamic link SS docker image..."
         ;;
-        static) echo "Building static SS image..."
+        static) echoY "Building static SS image..."
             do_clean_ss_img_func ${TARGET}
             sudo cp ./configs/config.json ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
             sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
@@ -84,10 +94,32 @@ build_ss_img_func()
                 -f ./3.Dockerfile_installer_${TARGET}.img.${ARCH} \
                 ${PWD}/ssBuild/dist/${ARCH}/bin
         ;;
-        *) echo "Unsupported target: ${TARGET}."
+        *) echoR "Unsupported target: ${TARGET}."
         exit 1
     esac
 }
+
+relPkgs_static_ss_func()
+{
+    TARGET=$1
+    case ${TARGET} in
+        dynamic)
+            echoR "Do not support dynamic link SS relPkgs..."
+        ;;
+        static) echoY "Releasing static SS relPkgs..."
+            echoY "Releasing static SS to:${RELEASE_PATH}"
+            mkdir -p ${RELEASE_PATH}/ss
+            rm -rf ${RELEASE_PATH}/ss/*
+
+            cp ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/ss-* ${RELEASE_PATH}/ss/
+            cp ./configs/*.service ${RELEASE_PATH}/ss/
+            cp ./configs/config.json ${RELEASE_PATH}/ss/
+        ;;
+        *) echoR "Unsupported target: ${TARGET}."
+        exit 1
+    esac
+}
+
 
 do_clean_ss_img_func()
 {
@@ -102,7 +134,7 @@ build_ss_target_func()
 {
     TARGET=$1
     case ${TARGET} in
-        dynamic) echo "Building dynamic SS..."
+        dynamic) echoY "Building dynamic SS..."
             mkdir -p ${BUILD_DIR}
             docker run --rm -it \
                 --dns=${DNS_IP} \
@@ -111,7 +143,7 @@ build_ss_target_func()
                 --entrypoint "/${SS_ROOT_DIR}/scripts/2.buildSS.sh" \
                 rayruan/ss_builder_${ARCH}:${TARGET} build ${BUILD_DIR}
         ;;
-        static) echo "Building static SS..."
+        static) echoY "Building static SS..."
             mkdir -p ${BUILD_DIR}
             docker run --rm -it \
                 --dns=${DNS_IP} \
@@ -121,7 +153,7 @@ build_ss_target_func()
                 rayruan/ss_builder_${ARCH}:${TARGET} ${ARCH} ${BUILD_DIR}
 
         ;;
-        *) echo "Unsupported target: ${TARGET}."
+        *) echoR "Unsupported target: ${TARGET}."
         exit 1
     esac
 }
@@ -135,11 +167,11 @@ builder_img_func()
     cp ./1.Dockerfile_builder_${TARGET}.img ./1.Dockerfile_builder_${TARGET}.img.${ARCH} 
 
     if [ ${TARGET} == dynamic -o ${TARGET} == static ]; then
-        echo "Building image..."
+        echoY "Building image..."
         sed -i "s/ubt1604_arch/ubt1604_${ARCH}/" ./1.Dockerfile_builder_${TARGET}.img.${ARCH}
         docker build --rm -t rayruan/ss_builder_${ARCH}:${TARGET} -f ./1.Dockerfile_builder_${TARGET}.img.${ARCH} .
     else
-        echo "Unsupport target:${TARGET} for image building."
+        echoR "Unsupport target:${TARGET} for image building."
         exit 1
     fi
 
@@ -153,7 +185,7 @@ builder_target_func()
         do_builder_clean_img_func ${TARGET}
         builder_img_func ${TARGET}
         ;;
-        *) echo "Unsupported target: ${TARGET}."
+        *) echoR "Unsupported target: ${TARGET}."
         exit 1
     esac
 }
@@ -168,41 +200,44 @@ do_builder_clean_img_func()
 
 usage_func()
 {
-    echo "./build.sh <cmd> <image tag>"
+    echoY "./run.sh <cmd> <image tag>"
     echo ""
-    echo "Supported cmd:"
-    echo "[ builder, cleanBuilder, build, img, cleanImg, deploySrv, deployClt ]"
+    echoY "Supported cmd:"
+    echo "[ builder, cleanBuilder, build, relPkgs, img, cleanImg, deploySrv, deployClt ]"
     echo ""
-    echo "Supported image tags:"
+    echoY "Supported image tags:"
     echo "[ dynamic, static ]"
 }
 
 
-[ $# -lt 2 ] && echo "Invalid args count:$# " && usage_func && exit 1
+[ $# -lt 2 ] && echoR "Invalid args count:$# " && usage_func && exit 1
 
 case $1 in
-    builder) echo "Building SS builder rayruan/ss_builder_${ARCH}:$2 ..."
+    builder) echoY "Building SS builder rayruan/ss_builder_${ARCH}:$2 ..."
         builder_target_func $2
         ;;
-    cleanBuilder) echo "Removing SS builder rayruan/ss_builder_${ARCH}:$2 ..."
+    cleanBuilder) echoY "Removing SS builder rayruan/ss_builder_${ARCH}:$2 ..."
         do_builder_clean_img_func $2
         ;;
-    build) echo "Building dynamic SS from github ..."
+    build) echoY "Building SS ..."
         build_ss_target_func $2
         ;;
-    img) echo "Building SS image rayruan/ss_${ARCH}:$2 ..."
+    relPkgs) echoY "Release SS ..."
+        relPkgs_static_ss_func $2
+        ;;
+    img) echoY "Building SS image rayruan/ss_${ARCH}:$2 ..."
         build_ss_img_func $2
         ;;
-    cleanImg) echo "Removing SS image rayruan/ss_${ARCH}:$2 ..."
+    cleanImg) echoY "Removing SS image rayruan/ss_${ARCH}:$2 ..."
         do_clean_ss_img_func $2
         ;;
-    deploySrv) echo "Deploying SS server with docker image rayruan/ss_${ARCH}:$2 ..."
+    deploySrv) echoY "Deploying SS server with docker image rayruan/ss_${ARCH}:$2 ..."
         deploy_ss_srv_func $2
         ;;
-    deployClt) echo "Deploying SS clients..."
+    deployClt) echoY "Deploying SS clients..."
         deploy_ss_clt_func $2
         ;;
-    *) echo "Unsupported cmd:$1."
+    *) echoR "Unsupported cmd:$1."
         usage_func
         exit 1
 esac

@@ -2,7 +2,7 @@ FROM alpine:latest
 
 #RUN mkdir -p /deployPkgs
 
-COPY . /deployPkgs
+COPY . /
 
 WORKDIR /
 

@@ -52,18 +52,18 @@ build_relPkgs_func()
 
 usage_func()
 {
-    echo "./build.sh <cmd> <target>"
+    echoY "./build.sh <cmd> <target>"
     echo ""
-    echo "Supported cmd:"
+    echoY "Supported cmd:"
     echo "[ pull, build ]"
     echo ""
-    echo "Supported target:"
+    echoY "Supported target:"
     echo "[ prerel, relPkgs ]"
 }
 
 echoG "TOP_DIR:${TOP_DIR}"
 
-[ $# -lt 2 ] && echo "Invalid args count:$# " && usage_func && exit 1
+[ $# -lt 2 ] && echoR "Invalid args count:$# " && usage_func && exit 1
 
 case $1 in
     build) echoY "Building relPkgs ..."
@@ -92,7 +92,7 @@ case $1 in
             echoR "Unknow target:$2, only support pulling target [ relPkgs, prerel ]."
         fi
         ;;
-    *) echo "Unsupported cmd:$1."
+    *) echoR "Unsupported cmd:$1."
         usage_func
         exit 1
 esac
