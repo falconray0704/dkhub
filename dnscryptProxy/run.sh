@@ -146,7 +146,7 @@ case $1 in
             echoY "Releasing dnscrypt-proxy to:${RELEASE_PATH}"
 
             mkdir -p ${RELEASE_PATH}
-            rm -rf ${RELEASE_PATH}/dnscrypt-proxy-${ARCH}
+            rm -rf ${RELEASE_PATH}/dnscrypt-proxy
 
             pushd ${RELEASE_PATH}
             cp -a ${DEST_PATH} ./
