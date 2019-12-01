@@ -161,6 +161,7 @@ case $1 in
         then
             echoY "Installing dnscrypt-proxy to your ${INSTALL_ROOT_PATH}..."
             sudo rm -rf ${INSTALL_ROOT_PATH}/dnscrypt-proxy
+            mkdir -p ${INSTALL_ROOT_PATH}
             docker run --rm -it -v ${INSTALL_ROOT_PATH}:/target rayruan/dnscrypt-proxy_${ARCH}:installer 
 	        USER_NAME=$(id -un)
 	        GROUP_NAME=$(id -gn)
