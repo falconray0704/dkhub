@@ -105,7 +105,7 @@ usage_func()
     echo "./run.sh <cmd> <target>"
     echo ""
     echo "Supported cmd:"
-    echo "[ get, build, release, install, uninstall ]"
+    echo "[ get, build, release, init, install, uninstall ]"
     echo ""
     echo "Supported target:"
     echo "[ src, dns, service, installer ]"
@@ -154,6 +154,14 @@ case $1 in
             popd
         else
             echoR "Unknow target:$2, only support releasing target [ dns ]."
+        fi
+        ;;
+    init) echoY "Initiating configs of $2"
+        if [ $2 == "dns" ]
+        then
+            config_func
+        else
+            echoR "Unknow target:$2, only support init targets [ dns ]."
         fi
         ;;
     install) echoY "Installing..."
