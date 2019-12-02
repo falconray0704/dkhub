@@ -50,12 +50,38 @@ build_relPkgs_func()
 
 }
 
+install_relPkgs2pi_func() 
+{
+    sdcard=$1
+    fsBoot=/mnt/piBoot
+    fsRoot=/mnt/piRoot
+    installPath=${fsRoot}
+
+    set +o errexit
+    sudo umount -f ${sdcard}*
+    set -o errexit
+
+    sudo mkdir -p ${fsBoot}
+    sudo mkdir -p ${fsRoot}
+
+    sudo mount ${sdcard}1 ${fsBoot}
+    sudo mount ${sdcard}2 ${fsRoot}
+
+    cp -a ./v${NEW_VERSION}/deployPkgs ${fsRoot}/home/pi/
+    sync
+
+    set +o errexit
+    sudo umount -f ${sdcard}*
+    set -o errexit
+
+}
+
 usage_func()
 {
-    echoY "./build.sh <cmd> <target>"
+    echoY "./build.sh <cmd> <target> [args]"
     echo ""
     echoY "Supported cmd:"
-    echo "[ pull, build ]"
+    echo "[ pull, build, install ]"
     echo ""
     echoY "Supported target:"
     echo "[ prerel, relPkgs ]"
@@ -90,6 +116,20 @@ case $1 in
             pull_pre_release_pkgs_func
         else
             echoR "Unknow target:$2, only support pulling target [ relPkgs, prerel ]."
+        fi
+        ;;
+    install) echoY "Installing relPkgs to PI..."
+        if [ $2 == "relPkgs" ]
+        then
+            echoY "Installing relpkgs:${NEW_VERSION} ..."
+            if [ $# -lt 3 ]
+            then
+                echoR "Usage of command $1: ./run.sh $1 $2 /dev/disk"
+            else
+                install_relPkgs2pi_func $3
+            fi
+        else
+            echoR "Unknow target:$2, only support installing target [ relPkgs ]."
         fi
         ;;
     *) echoR "Unsupported cmd:$1."
