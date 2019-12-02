@@ -80,6 +80,22 @@ config_func()
     popd
 }
 
+install_from_docker_installer_func()
+{
+    echoY "Installing dnscrypt-proxy to your ${INSTALL_ROOT_PATH}..."
+    sudo rm -rf ${INSTALL_ROOT_PATH}/dnscrypt-proxy
+    mkdir -p ${INSTALL_ROOT_PATH}
+    docker run --rm -it -v ${INSTALL_ROOT_PATH}:/target rayruan/dnscrypt-proxy_${ARCH}:installer 
+    USER_NAME=$(id -un)
+    GROUP_NAME=$(id -gn)
+    #echo "### ${USER_NAME}"
+    sudo chown -hR ${USER_NAME}:${GROUP_NAME} ${INSTALL_ROOT_PATH}/dnscrypt-proxy
+    cp dnsCryptSrc/public-resolvers.md* ${INSTALL_ROOT_PATH}/dnscrypt-proxy/
+
+    config_func
+    cp ./dnsCryptSrc/public* ${INSTALL_ROOT_PATH}/dnscrypt-proxy/
+}
+
 install_service_func()
 {
 	sudo sed -i '/^static domain_name_servers=.*/d' /etc/dhcpcd.conf
@@ -167,18 +183,8 @@ case $1 in
     install) echoY "Installing..."
         if [ $2 == "dns" ] 
         then
-            echoY "Installing dnscrypt-proxy to your ${INSTALL_ROOT_PATH}..."
-            sudo rm -rf ${INSTALL_ROOT_PATH}/dnscrypt-proxy
-            mkdir -p ${INSTALL_ROOT_PATH}
-            docker run --rm -it -v ${INSTALL_ROOT_PATH}:/target rayruan/dnscrypt-proxy_${ARCH}:installer 
-	        USER_NAME=$(id -un)
-	        GROUP_NAME=$(id -gn)
-	        #echo "### ${USER_NAME}"
-            sudo chown -hR ${USER_NAME}:${GROUP_NAME} ${INSTALL_ROOT_PATH}/dnscrypt-proxy
-            cp dnsCryptSrc/public-resolvers.md* ${INSTALL_ROOT_PATH}/dnscrypt-proxy/
-
-            config_func
-	        cp ./dnsCryptSrc/public* ${INSTALL_ROOT_PATH}/dnscrypt-proxy/
+            #install_from_docker_installer_func
+            echoY "Unsupport install from docker installer now, please install relPkgs."
         elif [ $2 == "service" ]
         then
             echoY "Installing dnscrypt-proxy service..."
