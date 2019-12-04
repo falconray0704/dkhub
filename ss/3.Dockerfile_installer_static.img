@@ -1,9 +1,0 @@
-FROM rayruan/ss_arch:static
-
-COPY ./3.installSS.sh /bin/
-
-WORKDIR /ssredir
-
-#ENTRYPOINT [ "cp", "/bin/ss-redir", "/ssredir/", "&&", "cp", "-a", "/etc/shadowsocks/\*\.service", "/ssredir/" ]
-ENTRYPOINT [ "/bin/3.installSS.sh" ]
-

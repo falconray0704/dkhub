@@ -67,7 +67,7 @@ install_relPkgs2pi_func()
     sudo mount ${sdcard}1 ${fsBoot}
     sudo mount ${sdcard}2 ${fsRoot}
 
-    cp -a ./v${NEW_VERSION}/deployPkgs ${fsRoot}/home/pi/
+    sudo cp -a ./v${NEW_VERSION}/deployPkgs ${fsRoot}/home/
     sync
 
     set +o errexit
@@ -76,15 +76,20 @@ install_relPkgs2pi_func()
 
 }
 
+deploy_server_func()
+{
+    sudo cp -a ./v${NEW_VERSION}/deployPkgs ${HOME}/
+}
+
 usage_func()
 {
     echoY "./build.sh <cmd> <target> [args]"
     echo ""
     echoY "Supported cmd:"
-    echo "[ pull, build, install ]"
+    echo "[ pull, build, deploy ]"
     echo ""
     echoY "Supported target:"
-    echo "[ prerel, relPkgs ]"
+    echo "[ prerel, relPkgs, pi, server ]"
 }
 
 echoG "TOP_DIR:${TOP_DIR}"
@@ -118,8 +123,8 @@ case $1 in
             echoR "Unknow target:$2, only support pulling target [ relPkgs, prerel ]."
         fi
         ;;
-    install) echoY "Installing relPkgs to PI..."
-        if [ $2 == "relPkgs" ]
+    deploy) echoY "Deploying relPkgs to $2..."
+        if [ $2 == "pi" ]
         then
             echoY "Installing relpkgs:${NEW_VERSION} ..."
             if [ $# -lt 3 ]
@@ -128,8 +133,11 @@ case $1 in
             else
                 install_relPkgs2pi_func $3
             fi
+        elif [ $2 == "server" ]
+        then
+            deploy_server_func
         else
-            echoR "Unknow target:$2, only support installing target [ relPkgs ]."
+            echoR "Unknow target:$2, only support installing target [ pi, server ]."
         fi
         ;;
     *) echoR "Unsupported cmd:$1."

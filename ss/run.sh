@@ -22,33 +22,8 @@ TOP_PATH=$(dirname ${PWD})
 RELEASE_ROOT_DIR="deployPkgs"
 RELEASE_PATH=${TOP_PATH}/${RELEASE_ROOT_DIR}/${ARCH}
 
-SS_SRV_DEPLOY_PATH=${HOME}/${RELEASE_ROOT_DIR}
 SS_CLT_DEPLOY_PATH=${HOME}/${RELEASE_ROOT_DIR}
 
-
-deploy_ss_clt_func()
-{
-    TARGET=$1
-    case ${TARGET} in
-        dynamic)
-            echoR "Do not support dynamic link SS docker image..."
-        ;;
-        static) echoY "Deploying static SS ss-redir ..."
-#            docker rmi -f rayruan/ss_${ARCH}:${TARGET}
-#            docker image prune
-#            docker pull rayruan/ss_${ARCH}:${TARGET}
-
-            sudo rm -rf ${SS_CLT_DEPLOY_PATH}/ssredir
-            mkdir -p ${SS_CLT_DEPLOY_PATH}/ssredir
-
-            docker run --rm -v ${SS_CLT_DEPLOY_PATH}/ssredir:/ssredir rayruan/ss_installer_${ARCH}:${TARGET}
-
-            sudo chown -hR ${USER_NAME}:${GROUP_NAME} ${SS_CLT_DEPLOY_PATH}/ssredir
-        ;;
-        *) echoR "Unsupported target: ${TARGET}."
-        exit 1
-    esac
-}
 
 deploy_ss_srv_func()
 {
@@ -61,12 +36,6 @@ deploy_ss_srv_func()
             docker rmi -f rayruan/ss_${ARCH}:${TARGET}
             docker image prune
             docker pull rayruan/ss_${ARCH}:${TARGET}
-
-            rm -rf ${SS_SRV_DEPLOY_PATH}/ssSrv
-            cp -a ./setup/srv ${SS_SRV_DEPLOY_PATH}/ssSrv
-            pushd ${SS_SRV_DEPLOY_PATH}/ssSrv
-            sed -i "s/ss_arch/ss_${ARCH}/" ./docker-compose.yml
-            popd
         ;;
         *) echo "Unsupported target: ${TARGET}."
         exit 1
@@ -85,14 +54,6 @@ build_ss_img_func()
             sudo cp ./configs/config.json ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
             sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
             docker build --rm -t rayruan/ss_${ARCH}:${TARGET} -f ./2.Dockerfile_ss_${TARGET}.img ${PWD}/ssBuild/dist/${ARCH}/bin
-
-            cp ./3.Dockerfile_installer_${TARGET}.img ./3.Dockerfile_installer_${TARGET}.img.${ARCH}
-            sed -i "s/ss_arch/ss_${ARCH}/g" ./3.Dockerfile_installer_${TARGET}.img.${ARCH}
-
-            sudo cp ./scripts/3.installSS.sh ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
-            docker build --rm -t rayruan/ss_installer_${ARCH}:${TARGET} \
-                -f ./3.Dockerfile_installer_${TARGET}.img.${ARCH} \
-                ${PWD}/ssBuild/dist/${ARCH}/bin
         ;;
         *) echoR "Unsupported target: ${TARGET}."
         exit 1
@@ -125,7 +86,6 @@ do_clean_ss_img_func()
 {
     TARGET=$1
     ARCH=$(arch)
-    docker rmi -f rayruan/ss_installer_${ARCH}:${TARGET}
 	docker rmi -f rayruan/ss_${ARCH}:${TARGET}
 	docker image prune
 }
@@ -203,7 +163,7 @@ usage_func()
     echoY "./run.sh <cmd> <image tag>"
     echo ""
     echoY "Supported cmd:"
-    echo "[ builder, cleanBuilder, build, relPkgs, img, cleanImg, deploySrv, deployClt ]"
+    echo "[ builder, cleanBuilder, build, relPkgs, buildImg, cleanImg, pullImg ]"
     echo ""
     echoY "Supported image tags:"
     echo "[ dynamic, static ]"
@@ -225,17 +185,14 @@ case $1 in
     relPkgs) echoY "Release SS ..."
         relPkgs_static_ss_func $2
         ;;
-    img) echoY "Building SS image rayruan/ss_${ARCH}:$2 ..."
+    buildImg) echoY "Building SS image rayruan/ss_${ARCH}:$2 ..."
         build_ss_img_func $2
         ;;
     cleanImg) echoY "Removing SS image rayruan/ss_${ARCH}:$2 ..."
         do_clean_ss_img_func $2
         ;;
-    deploySrv) echoY "Deploying SS server with docker image rayruan/ss_${ARCH}:$2 ..."
+    pullImg) echoY "Pulling SS docker image rayruan/ss_${ARCH}:$2 ..."
         deploy_ss_srv_func $2
-        ;;
-    deployClt) echoY "Deploying SS clients..."
-        deploy_ss_clt_func $2
         ;;
     *) echoR "Unsupported cmd:$1."
         usage_func
