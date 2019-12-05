@@ -50,6 +50,7 @@ build_ss_img_func()
             echoR "Do not support dynamic link SS docker image..."
         ;;
         static) echoY "Building static SS image..."
+            echoY "Removing SS image rayruan/ss_${ARCH}:${TARGET} ..."
             do_clean_ss_img_func ${TARGET}
             sudo cp ./configs/config.json ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
             sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
@@ -163,7 +164,7 @@ usage_func()
     echoY "./run.sh <cmd> <image tag>"
     echo ""
     echoY "Supported cmd:"
-    echo "[ builder, cleanBuilder, build, relPkgs, buildImg, cleanImg, pullImg ]"
+    echo "[ builder, cleanBuilder, build, relpkgs, buildImg, pullImg ]"
     echo ""
     echoY "Supported image tags:"
     echo "[ dynamic, static ]"
@@ -182,14 +183,11 @@ case $1 in
     build) echoY "Building SS ..."
         build_ss_target_func $2
         ;;
-    relPkgs) echoY "Release SS ..."
+    relpkgs) echoY "Release SS ..."
         relPkgs_static_ss_func $2
         ;;
     buildImg) echoY "Building SS image rayruan/ss_${ARCH}:$2 ..."
         build_ss_img_func $2
-        ;;
-    cleanImg) echoY "Removing SS image rayruan/ss_${ARCH}:$2 ..."
-        do_clean_ss_img_func $2
         ;;
     pullImg) echoY "Pulling SS docker image rayruan/ss_${ARCH}:$2 ..."
         deploy_ss_srv_func $2
