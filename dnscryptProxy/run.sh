@@ -59,12 +59,23 @@ build_latest_func()
 
 }
 
+relpkgs_dns_func()
+{
+    mkdir -p ${RELEASE_PATH}
+    rm -rf ${RELEASE_PATH}/dnscrypt-proxy
+
+    pushd ${RELEASE_PATH}
+    cp -a ${DEST_PATH} ./
+    mv dnscrypt-proxy-${ARCH} dnscrypt-proxy
+    popd
+}
+
 usage_func()
 {
     echoY "./run.sh <cmd> <target>"
     echo ""
     echoY "Supported cmd:"
-    echo "[ get, build, release ]"
+    echo "[ get, build, relpkgs ]"
     echo ""
     echoY "Supported target:"
     echo "[ src, dns ]"
@@ -93,18 +104,11 @@ case $1 in
             echoR "Unknow target:$2, only support building target [ dns ]."
         fi
         ;;
-    release) echoY "Releasing ..."
+    relpkgs) echoY "Releasing ..."
         if [ $2 == "dns" ]
         then
             echoY "Releasing dnscrypt-proxy to:${RELEASE_PATH}"
-
-            mkdir -p ${RELEASE_PATH}
-            rm -rf ${RELEASE_PATH}/dnscrypt-proxy
-
-            pushd ${RELEASE_PATH}
-            cp -a ${DEST_PATH} ./
-            mv dnscrypt-proxy-${ARCH} dnscrypt-proxy
-            popd
+            relpkgs_dns_func
         else
             echoR "Unknow target:$2, only support releasing target [ dns ]."
         fi
