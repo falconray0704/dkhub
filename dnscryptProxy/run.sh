@@ -90,7 +90,7 @@ case $1 in
             echoY "Building dnscrypt-proxy ${LATEST_VERSION}.tar.gz..."
             build_latest_func
         else
-            echoR "Unknow target:$2, only support building target [dns, installer]."
+            echoR "Unknow target:$2, only support building target [ dns ]."
         fi
         ;;
     release) echoY "Releasing ..."
