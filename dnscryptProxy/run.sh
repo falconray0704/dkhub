@@ -9,7 +9,7 @@ set -e
 
 . ../libShell/echo_color.lib
 
-LATEST_VERSION="2.0.33"
+LATEST_VERSION="2.0.34"
 ARCH=$(arch)
 
 #TOP_PATH=$(cd ../ && pwd -P)
@@ -59,14 +59,6 @@ build_latest_func()
 
 }
 
-build_installer_image_func()
-{
-    docker rmi -f rayruan/dnscrypt-proxy_${ARCH}:installer
-    docker image prune
-    docker build --rm -t rayruan/dnscrypt-proxy_${ARCH}:installer -f Dockerfile_installer.img ${DEST_PATH}
-}
-
-
 usage_func()
 {
     echoY "./run.sh <cmd> <target>"
@@ -97,11 +89,6 @@ case $1 in
         then
             echoY "Building dnscrypt-proxy ${LATEST_VERSION}.tar.gz..."
             build_latest_func
-        elif [ $2 == "installer" ]
-        then
-#            echoY "Building dnscrypt-proxy docker image for deployment..."
-#            build_installer_image_func
-            echoR "Unsupport build docker installer now."
         else
             echoR "Unknow target:$2, only support building target [dns, installer]."
         fi
