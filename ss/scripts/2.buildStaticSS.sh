@@ -180,7 +180,7 @@ build_proj() {
     make install-strip -j8
 #    cp ./debian/shadowsocks-libev-*.service ${prefix}/bin/
     popd
-    cp ./setup/srv/* ${prefix}/bin/
+    #cp ./setup/srv/* ${prefix}/bin/
 }
 
 dk_build() {
