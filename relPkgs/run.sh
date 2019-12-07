@@ -89,7 +89,7 @@ usage_func()
     echo "[ pull, build, deploy ]"
     echo ""
     echoY "Supported target:"
-    echo "[ prerel, relPkgs, pi, server ]"
+    echo "[ prerel, relpkgs, pi, server ]"
 }
 
 echoG "TOP_DIR:${TOP_DIR}"
@@ -98,7 +98,7 @@ echoG "TOP_DIR:${TOP_DIR}"
 
 case $1 in
     build) echoY "Building relPkgs ..."
-        if [ $2 == "relPkgs" ]
+        if [ $2 == "relpkgs" ]
         then
             echoY "Building rayruan/relpkgs:${NEW_VERSION} ..."
             build_relPkgs_func
