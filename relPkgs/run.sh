@@ -103,11 +103,11 @@ case $1 in
             echoY "Building rayruan/relpkgs:${NEW_VERSION} ..."
             build_relPkgs_func
         else
-            echoR "Unknow target:$2, only support building target [ relPkgs ]."
+            echoR "Unknow target:$2, only support building target [ relpkgs ]."
         fi
         ;;
     pull) echoY "Pulling ..."
-        if [ $2 == "relPkgs" ]
+        if [ $2 == "relpkgs" ]
         then
             echoY "Pulling relPkgs:${NEW_VERSION} to v${NEW_VERSION}..."
             sudo rm -rf v${NEW_VERSION}
@@ -120,7 +120,7 @@ case $1 in
             echoY "Pulling pre-release ..."
             pull_pre_release_pkgs_func
         else
-            echoR "Unknow target:$2, only support pulling target [ relPkgs, prerel ]."
+            echoR "Unknow target:$2, only support pulling target [ relpkgs, prerel ]."
         fi
         ;;
     deploy) echoY "Deploying relPkgs to $2..."
