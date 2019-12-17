@@ -6,10 +6,8 @@ ARG uid
 ARG group
 ARG gid
 
-RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop openjdk-8-jdk zip
-RUN apt-get update \
-        && apt-get upgrade -y \
-        && apt-get install -y realpath
+RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc openjdk-8-jdk 
+
 RUN groupadd -r "$group" -g "$gid" \
     && useradd -r -m -u "$uid" -g "$gid" "$user" \
     && usermod -aG $group root

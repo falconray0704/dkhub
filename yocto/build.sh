@@ -63,7 +63,7 @@ usage_func()
     echoY "./build.sh <target> <target version>"
     echo ""
     echoY "Supported target:"
-    echo "[ basic, build ]"
+    echo "[ basic, build, cleanBasic, cleanBuild ]"
     echo ""
     echoY "Supported target version:"
     echo "[ 1404, 1604, 1804 ]"

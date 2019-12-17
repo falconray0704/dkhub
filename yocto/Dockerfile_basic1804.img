@@ -2,12 +2,19 @@ FROM rayruan/ubt1804:basic
 
 EXPOSE 80 21
 
+#    && basicPkgs='vim htop tree dnsutils zip sed cvs subversion make gcc g++ autoconf automake curl' \
 
 RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get -y upgrade \
-    && dependPkgs='gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm tmux python-minimal python2.7 cpio python-dev python3-dev' \
-    && apt-get -y install $dependPkgs
+    && basicPkgs='vim htop tree dnsutils zip sed cvs subversion make gcc g++ autoconf automake curl python2.7 python-dev python3-dev python-pysqlite2 python-minimal cpio libgl1-mesa-dev libglu1-mesa-dev xterm tmux ' \
+    && dependPkgs='gawk wget git diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev'\
+    && apt-get -y install $dependPkgs $basicPkgs
+
+#RUN apt-get -y install coreutils texi2html mercurial asciidoc groff 
+#help2man 
+#docbook-utils desktop-file-utils 
+#
 
 #USER $user
 
