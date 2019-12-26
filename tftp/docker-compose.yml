@@ -1,0 +1,14 @@
+tftp-hpa:
+  image: rayruan/tftp-hpa_x86_64
+  ports:
+    - 69:69/udp
+  volumes:
+    - /mnt/cd1/tftpboot:/var/tftpboot
+  entrypoint:
+    - in.tftpd
+    - -L
+    - --secure
+    - --create
+    - /var/tftpboot
+  restart: always
+
