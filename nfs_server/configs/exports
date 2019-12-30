@@ -1,0 +1,12 @@
+#{{SHARED_DIRECTORY}} {{PERMITTED}}({{READ_ONLY}},fsid=0,{{SYNC}},no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+
+#/nfsRoot * (rw,fsid=0,sync,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+#/nfsRoot * (ro,fsid=0,async,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+
+/mnt/cd1/nfsRoot *(rw,sync,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+/mnt/cd1/nfsTmp1 *(rw,sync,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+/mnt/cd1/nfsTmp2 *(rw,sync,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+
+#/mnt/cd1/nfsRoot *(rw,sync,no_subtree_check,no_root_squash)
+#/mnt/cd1/nfsTmp1 *(rw,sync,no_subtree_check,no_root_squash)
+#/mnt/cd1/nfsTmp2 *(rw,sync,no_subtree_check,no_root_squash)

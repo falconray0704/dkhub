@@ -1,0 +1,14 @@
+nfs-server:
+  image: rayruan/nfs-server_x86_64
+  privileged: true
+  ports:
+    - 2049:2049
+  volumes:
+    - /mnt/cd1/github/falcon/dkhub/nfs_server/configs/exports:/etc/exports
+    - /mnt/cd1/nfsRoot:/mnt/cd1/nfsRoot
+    - /mnt/cd1/nfsTmp1:/mnt/cd1/nfsTmp1
+    - /mnt/cd1/nfsTmp2:/mnt/cd1/nfsTmp2
+  entrypoint:
+    - /usr/bin/nfsd.sh
+  restart: always
+
