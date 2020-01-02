@@ -6,12 +6,24 @@ set -e
 . ../libShell/echo_color.lib
 . ../libShell/sysEnv.lib
 
+BUILD_CONTEXT_DIR="build_context"
+
 ARCH=$(arch)
+
+setup_build_context_func()
+{
+    rm -rf ${BUILD_CONTEXT_DIR}
+    mkdir -p ${BUILD_CONTEXT_DIR}
+    
+    cp ./entrypoint.sh ${BUILD_CONTEXT_DIR}/
+}
 
 build_target_func()
 {
+    setup_build_context_func
+
     do_clean_img_func
-    docker build --rm -t rayruan/nfs-server_${ARCH} -f ./Dockerfile ./configs
+    docker build --rm -t rayruan/nfs-server_${ARCH} -f ./Dockerfile ${BUILD_CONTEXT_DIR}
 }
 
 do_clean_img_func()
