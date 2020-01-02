@@ -1,20 +1,20 @@
-#FROM alpine:latest
-FROM alpine:3.11.2
-#LABEL maintainer "Steven Iveson <steve@iveson.eu>"
-#LABEL source "https://github.com/sjiveson/nfs-server-alpine"
-#LABEL branch "master"
-#COPY Dockerfile README.md /
+ARG BUILD_FROM=alpine:3.11.2
 
-RUN apk add --no-cache --update --verbose nfs-utils bash iproute2 && \
-    rm -rf /var/cache/apk /tmp /sbin/halt /sbin/poweroff /sbin/reboot && \
-    mkdir -p /proc/fs/nfsd /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
-    echo "rpc_pipefs    /var/lib/nfs/rpc_pipefs rpc_pipefs      defaults        0       0" >> /etc/fstab && \
-    echo "nfsd  /proc/fs/nfsd   nfsd    defaults        0       0" >> /etc/fstab
+FROM $BUILD_FROM
 
-#COPY exports /etc/
-COPY nfsd.sh /usr/bin/nfsd.sh
-COPY .bashrc /root/.bashrc
+RUN apk --update --no-cache add bash nfs-utils && \
+                                                  \
+    # remove the default config files
+    rm -v /etc/idmapd.conf /etc/exports
 
-RUN chmod +x /usr/bin/nfsd.sh
+# http://wiki.linux-nfs.org/wiki/index.php/Nfsv4_configuration
+RUN mkdir -p /var/lib/nfs/rpc_pipefs                                                     && \
+    mkdir -p /var/lib/nfs/v4recovery                                                     && \
+    echo "rpc_pipefs  /var/lib/nfs/rpc_pipefs  rpc_pipefs  defaults  0  0" >> /etc/fstab && \
+    echo "nfsd        /proc/fs/nfsd            nfsd        defaults  0  0" >> /etc/fstab
 
-ENTRYPOINT ["/usr/bin/nfsd.sh"]
+EXPOSE 2049
+
+# setup entrypoint
+COPY ./entrypoint.sh /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
