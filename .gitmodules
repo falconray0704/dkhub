@@ -1,4 +1,3 @@
 [submodule "libShell"]
 	path = libShell
 	url = https://github.com/falconray0704/libShell.git
-	branch = stable
