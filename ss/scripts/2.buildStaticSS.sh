@@ -18,12 +18,12 @@ DIST="$BASE/dist"
 
 
 # libev
-LIBEV_VER=4.27
+LIBEV_VER=4.33
 LIBEV_NAME=libev-${LIBEV_VER}
 LIBEV_URL=http://dist.schmorp.de/libev/${LIBEV_NAME}.tar.gz
 
 ## mbedTLS
-MBEDTLS_VER=2.16.2
+MBEDTLS_VER=2.16.6
 #MBEDTLS_VER=2.9.0
 MBEDTLS_NAME=mbedtls-${MBEDTLS_VER}
 MBEDTLS_URL=https://tls.mbed.org/download/${MBEDTLS_NAME}-apache.tgz
@@ -35,7 +35,7 @@ SODIUM_NAME=libsodium-${SODIUM_VER}
 SODIUM_URL=https://download.libsodium.org/libsodium/releases/${SODIUM_NAME}.tar.gz
 
 ## PCRE
-PCRE_VER=8.43
+PCRE_VER=8.44
 #PCRE_VER=8.42
 PCRE_NAME=pcre-${PCRE_VER}
 PCRE_URL=https://ftp.pcre.org/pub/pcre/${PCRE_NAME}.tar.gz
@@ -50,7 +50,7 @@ CARES_NAME=c-ares-${CARES_VER}
 CARES_URL=https://c-ares.haxx.se/download/${CARES_NAME}.tar.gz
 
 #shadowsocks-libev
-SHADOWSOCKS_VER=3.3.3
+SHADOWSOCKS_VER=3.3.4
 #SHADOWSOCKS_VER=3.2.0
 SHADOWSOCKS_NAME=shadowsocks-libev-${SHADOWSOCKS_VER}
 SHADOWSOCKS_URL=https://github.com/shadowsocks/shadowsocks-libev/releases/download/v${SHADOWSOCKS_VER}/${SHADOWSOCKS_NAME}.tar.gz
