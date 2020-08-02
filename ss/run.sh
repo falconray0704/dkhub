@@ -8,10 +8,14 @@ set -e
 #set -x
 
 . ../libShell/echo_color.lib
+. ../libShell/time.lib
 
 ARCH=$(arch)
 USER_NAME=$(id -un)
 GROUP_NAME=$(id -gn)
+TIME_STAMP=$(timestamp)
+
+SS_RELEASE_PACKAGE="ss-${ARCH}-${TIME_STAMP}.tar.gz"
 
 DNS_IP="192.168.11.1"
 SS_ROOT_DIR=ssRoot
@@ -69,13 +73,18 @@ relPkgs_static_ss_func()
             echoR "Do not support dynamic link SS relPkgs..."
         ;;
         static) echoY "Releasing static SS relPkgs..."
-            echoY "Releasing static SS to:${RELEASE_PATH}"
+            echoY "Releasing static ${SS_RELEASE_PACKAGE} to:${RELEASE_PATH}"
             mkdir -p ${RELEASE_PATH}/ss
             rm -rf ${RELEASE_PATH}/ss/*
 
             cp ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/ss-* ${RELEASE_PATH}/ss/
             cp ./configs/*.service ${RELEASE_PATH}/ss/
             cp ./configs/config.json ${RELEASE_PATH}/ss/
+
+	    pushd ${RELEASE_PATH}
+	    tar -zcf ${SS_RELEASE_PACKAGE} ss
+	    popd
+
         ;;
         *) echoR "Unsupported target: ${TARGET}."
         exit 1
