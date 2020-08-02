@@ -8,9 +8,13 @@ set -e
 #set -x
 
 . ../libShell/echo_color.lib
+. ../libShell/time.lib
 
 LATEST_VERSION="2.0.44"
 ARCH=$(arch)
+TIME_STAMP=$(timestamp)
+
+DNSCRYPT_PROXY_RELEASE_PACKAGE="dnscrypt-proxy-${ARCH}-${TIME_STAMP}.tar.gz"
 
 #TOP_PATH=$(cd ../ && pwd -P)
 TOP_PATH=$(dirname ${PWD})
@@ -67,6 +71,7 @@ relpkgs_dns_func()
     pushd ${RELEASE_PATH}
     cp -a ${DEST_PATH} ./
     mv dnscrypt-proxy-${ARCH} dnscrypt-proxy
+    tar -zcf ${DNSCRYPT_PROXY_RELEASE_PACKAGE} dnscrypt-proxy
     popd
 }
 
@@ -107,7 +112,7 @@ case $1 in
     relpkgs) echoY "Releasing ..."
         if [ $2 == "dns" ]
         then
-            echoY "Releasing dnscrypt-proxy to:${RELEASE_PATH}"
+            echoY "Releasing ${DNSCRYPT_PROXY_RELEASE_PACKAGE} to:${RELEASE_PATH}"
             relpkgs_dns_func
         else
             echoR "Unknow target:$2, only support releasing target [ dns ]."
