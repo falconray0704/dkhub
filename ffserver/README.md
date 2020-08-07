@@ -84,12 +84,21 @@ $ docker-compose exec ffserver ffmpeg -re -i video.mp4 http://localhost:8090/fee
 ## Client Setup
 
 ```bash
+# Pushing file
 $ ffmpeg -re -i video.mp4 http://easypi.info:8090/feed.ffm
+
+# Pushing usb camera yuyv422
+ffmpeg -f v4l2 -input_format yuyv422 -framerate 30 -video_size 640x480 -i /dev/video0 -c:v nvenc -vf format=yuv420p -an http://192.168.11.158:8090/camfeed.ffm
+
+# Pushing usb camera mjpg
+ffmpeg -f v4l2 -input_format mjpeg -framerate 30 -video_size 1920x1080 -i /dev/video2 -c:v nvenc -vf format=yuv420p -an http://192.168.11.158:8090/camfeed1920x1080.ffm
+
 ```
 
 ## Player Setup
 
 ```bash
+$ ffplay rtsp://192.168.11.158:554/usbcam1920x1080.mov
 $ ffplay rtsp://easypi.info/video.mp4
 $ vlc http://easypi.info:8090/video.rtsp
 $ firefox http://easypi.info:8090/status.html
