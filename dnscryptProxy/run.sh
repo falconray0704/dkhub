@@ -10,7 +10,7 @@ set -e
 . ../libShell/echo_color.lib
 . ../libShell/time.lib
 
-LATEST_VERSION="2.0.44"
+LATEST_VERSION="2.0.45"
 ARCH=$(arch)
 TIME_STAMP=$(timestamp)
 
