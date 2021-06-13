@@ -2,13 +2,37 @@ FROM rayruan/ubt1404:basic
 
 EXPOSE 80 21
 
+ARG user
+ARG uid
+ARG group
+ARG gid
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
 
 RUN apt-get update \
     && apt-get -y dist-upgrade \
     && apt-get -y upgrade \
-    && dependPkgs='gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm tmux python-minimal python2.7 cpio python-dev python3-dev' \
+    && dependPkgs='git realpath gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm tmux python-minimal python2.7 cpio python-dev python3-dev' \
     && buildPkgs='libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop openjdk-7-jdk zip gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev libsdl1.2-dev xterm sed cvs subversion coreutils texi2html docbook-utils python-pysqlite2 help2man make gcc g++ desktop-file-utils libgl1-mesa-dev libglu1-mesa-dev mercurial autoconf automake groff curl lzop asciidoc u-boot-tools' \
    && apt-get -y install $dependPkgs $buildPkgs 
+
+RUN dpkg --add-architecture i386 \
+        && apt-get update \
+        && apt-get install -y build-essential diffstat texinfo gawk chrpath \
+        lib32ncurses5 lib32z1 \
+        libstdc++6:i386 libncurses5:i386 libz1:i386 libc6:i386 libc6-dev-i386 g++-multilib \
+        && apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+
+
 
 #USER $user
 

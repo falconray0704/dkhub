@@ -7,12 +7,13 @@ ARG group
 ARG gid
 
 #RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop openjdk-8-jdk zip 
-RUN apt-get update \
-        && apt-get upgrade -y \
-        && apt-get install -y realpath
+
+RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop
+# openjdk-8-jdk zip
+
 
 RUN groupadd -r "$group" -g "$gid" \
-    && useradd -r -m -u "$uid" -g "$gid" "$user" \
+    && useradd -r -m -u "$uid" -g "$gid" -s "/bin/bash" "$user" \
     && usermod -aG $group root \
     && git config --global user.name "ubuntu" \
     && git config --global user.email "ubuntu@gmail.com"
@@ -21,6 +22,22 @@ RUN mkdir -p /home/"$user"/bin \
         && curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > /home/"$user"/bin/repo \
         && chmod a+x /home/"$user"/bin/repo \
         && echo "PATH=/home/$user/bin:$PATH" >> /home/$user/.bashrc
+
+COPY . /home/$user
+
+RUN mkdir -p /home/"$user"/bin \
+        && cd /home/"$user" \
+        && tar -Jxvf gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz -C /home/$user
+
+#        && wget https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz \
+    #        && wget https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz \
+    #    && wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz \
+    #    && wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz \
+#####################################################################
+
 
 
 #COPY ./.vim /home/ray/

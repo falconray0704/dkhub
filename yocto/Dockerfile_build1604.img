@@ -6,13 +6,55 @@ ARG uid
 ARG group
 ARG gid
 
-RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop openjdk-8-jdk zip
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update \
         && apt-get upgrade -y \
-        && apt-get install -y realpath
+        && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+        && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+RUN dpkg --add-architecture i386 \
+        && apt-get update \
+        && apt-get install -y git realpath build-essential diffstat texinfo gawk chrpath \
+        lib32ncurses5 lib32z1 \
+        libstdc++6:i386 libncurses5:i386 libz1:i386 libc6:i386 libc6-dev-i386 g++-multilib 
+
+RUN apt-get install -y git build-essential python diffstat texinfo gawk chrpath dos2unix wget unzip socat doxygen libc6:i386 libncurses5:i386 libstdc++6:i386 libz1:i386
+
+
+RUN apt-get install -y libncurses5-dev libncursesw5-dev libssl-dev bison libbison-dev bc lzop openjdk-8-jdk zip
+
 RUN groupadd -r "$group" -g "$gid" \
-    && useradd -r -m -u "$uid" -g "$gid" "$user" \
+    && useradd -r -m -u "$uid" -g "$gid" -s "/bin/bash" "$user" \
     && usermod -aG $group root
+
+RUN mkdir -p /home/"$user"/bin \
+        && curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > /home/"$user"/bin/repo \
+        && chmod a+x /home/"$user"/bin/repo \
+        && echo "PATH=/home/$user/bin:$PATH" >> /home/$user/.bashrc
+
+COPY . /home/$user
+
+RUN mkdir -p /home/"$user"/bin \
+        && cd /home/"$user" \
+        && tar -Jxvf gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz -C /home/$user \
+        && tar -Jxvf gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz -C /home/$user
+
+#        && wget https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz \
+    #        && wget https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz \
+    #    && wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/arm-linux-gnueabihf/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz \
+    #    && wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz \
+#####################################################################
+
+
+
+
 
 #COPY ./.vim /home/ray/
 #COPY ./.vimrc /home/ray/
