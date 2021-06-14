@@ -15,7 +15,7 @@ RELEASE_BIN_FILE_NAME="frp_${VERSION_RELEASE_FRP}_${OS_TARGET}_${ARCH_TARGET}.ta
 RELEASE_SRC_FILE_NAME="v${VERSION_RELEASE_FRP}.tar.gz" 
 
 SUPPORTED_CMD="get,build"
-SUPPORTED_TARGETS="releaseBin,releaseSrc,frpsDockerImg"
+SUPPORTED_TARGETS="releaseBin,releaseSrc,frpDockerImg"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
@@ -134,7 +134,7 @@ get_releaseSrc()
     ls -al ${DOWNLOAD_DIR}
 }
 
-build_frpsDockerImg()
+build_frpDockerImg()
 {
     exec_cmd=$1
     exec_item=$2
@@ -144,7 +144,7 @@ build_frpsDockerImg()
     tar -zxf ${RELEASE_BIN_FILE_NAME}
     popd
 
-    DOCKER_TARGET=${FRP_DOCKER_REPO}/${FRPS_DOCKER_NAME}:${FRPS_DOCKER_TAG} 
+    DOCKER_TARGET=${FRP_DOCKER_REPO}/${FRP_DOCKER_NAME}:${FRP_DOCKER_TAG} 
 
     echoY "Removing docker image ${DOCKER_TARGET} ..."
 
@@ -153,7 +153,7 @@ build_frpsDockerImg()
     #sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
 
     echoY "Building docker image ${DOCKER_TARGET} ..."
-    docker build --rm -t ${DOCKER_TARGET} -f ./Dockerfile-for-frps ${RELEASE_BIN_PATH}
+    docker build --rm -t ${DOCKER_TARGET} -f ./Dockerfile ${RELEASE_BIN_PATH}
 
     if [ $? -eq 0 ]
     then
@@ -171,7 +171,7 @@ usage_func()
     echoY "Usage:"
     echoY './run.sh -c <cmd> -l "<item list>"'
     echoY "eg:\n./run.sh -c get -l \"releaseBin,releaseSrc\""
-    echoY "eg:\n./run.sh -c build -l \"frpsDockerImg\""
+    echoY "eg:\n./run.sh -c build -l \"frpDockerImg\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"
