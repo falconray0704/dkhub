@@ -1,0 +1,12 @@
+FROM alpine:3.12.0
+
+RUN mkdir -p /app
+
+WORKDIR /app
+
+COPY frps /usr/bin
+RUN chmod -R 777 /usr/bin/frps
+
+COPY frps.ini /app/
+
+ENTRYPOINT ["/usr/bin/frps","-c","/app/frps.ini"]
