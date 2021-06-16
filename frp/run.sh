@@ -24,7 +24,7 @@ EXEC_ITEMS_LIST=""
 
 clean_docker_image()
 {
-    docker_target=$1
+    local docker_target=$1
 
     set +e
 	docker rmi -f ${docker_target}
@@ -34,13 +34,15 @@ clean_docker_image()
 
 exec_items_iterator()
 {
-    exec_cmd=$1
-    exec_items_list=$2
+    local exec_cmd=$1
+    local exec_items_list=$2
 
-    exec_items_num=`echo ${exec_items_list}|awk -F"," '{print NF}'`
+    local exec_items_num=`echo ${exec_items_list}|awk -F"," '{print NF}'`
+    local i
     for ((i=1;i<=${exec_items_num};i++)); do
+        local item
         eval item='`echo ${exec_items_list}|awk -F, "{ print $"$i" }"`'
-        exec_name=${exec_cmd}_${item}
+        local exec_name=${exec_cmd}_${item}
         ${exec_name} ${exec_cmd} ${item}
     done
 }
@@ -48,24 +50,24 @@ exec_items_iterator()
 
 get_items_func()
 {
-    exec_cmd=$1
-    exec_items_list=$2
+    local exec_cmd=$1
+    local exec_items_list=$2
 
     exec_items_iterator ${exec_cmd} ${exec_items_list} 
 }
 
 build_items_func()
 {
-    exec_cmd=$1
-    exec_items_list=$2
+    local exec_cmd=$1
+    local exec_items_list=$2
 
     exec_items_iterator ${exec_cmd} ${exec_items_list} 
 }
 
 mkdirs_get_releaseBin()
 {
-    exec_cmd=$1
-    exec_item=$2
+    local exec_cmd=$1
+    local exec_item=$2
     echoY "Preparing running dirs for ${exec_cmd} ${exec_item} ..."
     if [ ! -d ${DOWNLOAD_DIR} ]
     then
@@ -76,8 +78,8 @@ mkdirs_get_releaseBin()
 
 get_releaseBin()
 {
-    exec_cmd=$1
-    exec_item=$2
+    local exec_cmd=$1
+    local exec_item=$2
 
     echoY "Downloading ${VERSION_RELEASE_FRP} frp release ${RELEASE_BIN_FILE_NAME} ..."
 
@@ -107,8 +109,8 @@ get_releaseBin()
 
 get_releaseSrc()
 {
-    exec_cmd=$1
-    exec_item=$2
+    local exec_cmd=$1
+    local exec_item=$2
 
     echoY "Downloading ${VERSION_RELEASE_FRP} frp release source ${RELEASE_SRC_FILE_NAME} ..."
 
@@ -136,15 +138,15 @@ get_releaseSrc()
 
 build_frpDockerImg()
 {
-    exec_cmd=$1
-    exec_item=$2
+    local exec_cmd=$1
+    local exec_item=$2
 
     pushd ${DOWNLOAD_DIR}
     rm -rf ${RELEASE_BIN_DIR}
     tar -zxf ${RELEASE_BIN_FILE_NAME}
     popd
 
-    DOCKER_TARGET=${FRP_DOCKER_REPO}/${FRP_DOCKER_NAME}:${FRP_DOCKER_TAG} 
+    local DOCKER_TARGET=${FRP_DOCKER_REPO}/${FRP_DOCKER_NAME}:${FRP_DOCKER_TAG} 
 
     echoY "Removing docker image ${DOCKER_TARGET} ..."
 
