@@ -8,6 +8,7 @@ set -e
 #set -x
 
 . ../libShell/echo_color.lib
+. ../libShell/utils.lib
 
 source .env_host
 
@@ -31,22 +32,6 @@ clean_docker_image()
 	docker image prune
     set -e
 }
-
-exec_items_iterator()
-{
-    local exec_cmd=$1
-    local exec_items_list=$2
-
-    local exec_items_num=`echo ${exec_items_list}|awk -F"," '{print NF}'`
-    local i
-    for ((i=1;i<=${exec_items_num};i++)); do
-        local item
-        eval item='`echo ${exec_items_list}|awk -F, "{ print $"$i" }"`'
-        local exec_name=${exec_cmd}_${item}
-        ${exec_name} ${exec_cmd} ${item}
-    done
-}
-
 
 get_items_func()
 {
@@ -214,8 +199,6 @@ do
 done
 
 [[ "$no_args" == "true" ]] && { usage_func; exit 1; }
-#[ $# -lt 1 ] && echoR "Invalid args count:$# " && usage_func && exit 1
-
 
 case ${EXEC_CMD} in
     "get")
