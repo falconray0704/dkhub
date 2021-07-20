@@ -1,0 +1,11 @@
+FROM DOCKER_USER_NAME/DOCKER_TARGET_ARCH_buildroot_sdk:base
+
+
+# install RK3568 dependencies
+RUN rk3568Deps='repo git ssh make gcc libssl-dev liblz4-tool expect g++ patchelf chrpath gawk texinfo chrpath diffstat binfmt-support qemu-user-static live-build bison flex fakeroot cmake gcc-multilib g++-multilib unzip device-tree-compiler python-pip libncurses5-dev' \
+    && apt-get -y install ${rk3568Deps} \
+    && apt -y autoremove \
+    && pip install pyelftools
+
+
+
