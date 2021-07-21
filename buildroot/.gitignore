@@ -5,3 +5,6 @@
 *.img.armv7l
 
 *.xz
+
+Dockerfile_*.img_*
+

@@ -16,25 +16,25 @@ set -o errexit
 . ./.env_setup
 
 SUPPORTED_CMD="build,clean"
-SUPPORTED_TARGETS="rk3568"
+SUPPORTED_TARGETS="base,rksdk3568,rksdk1126"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
 
-build_rk3568()
+build_base()
 {
     local TARGET_USER_NAME=${DOCKER_USER_NAME}
     local TARGET_NAME=$2
     local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
 
-    echoY "Building docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building rk3568 SDK..."
+    echoY "Building docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building buildroot SDK..."
 
     docker build --rm -t ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} \
         --build-arg "group=$(id -gn)" \
         --build-arg "gid=$(id -u)" \
         --build-arg "user=$(id -un)" \
         --build-arg	"uid=$(id -g)" \
-        -f ./Dockerfile_ubt1804_build_sdk_rk3568.img .
+        -f ./Dockerfile_base.img .
 
     if [ $? -eq 0 ]
     then
@@ -45,13 +45,13 @@ build_rk3568()
 
 }
 
-clean_rk3568()
+clean_base()
 {
     local TARGET_USER_NAME=${DOCKER_USER_NAME}
     local TARGET_NAME=$2
     local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
 
-    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building rk3568 SDK..."
+    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building buildroot SDK..."
 	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
     if [ $? -eq 0 ]
     then
@@ -61,6 +61,89 @@ clean_rk3568()
         echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
     fi
 }
+
+build_rksdk3568()
+{
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=$2
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    echoY "Building docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
+
+    cp Dockerfile_rksdk3568.img Dockerfile_rksdk3568.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+    sed -i "s/DOCKER_USER_NAME/${TARGET_USER_NAME}/" ./Dockerfile_rksdk3568.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+    sed -i "s/DOCKER_TARGET_ARCH/${TARGET_ARCH}/" ./Dockerfile_rksdk3568.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+
+    docker build --rm -t ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} \
+        -f ./Dockerfile_rksdk3568.img_${TARGET_USER_NAME}_${TARGET_ARCH} .
+
+    if [ $? -eq 0 ]
+    then
+        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} built success."
+    else
+        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} built fail."
+    fi
+
+}
+
+clean_rksdk3568()
+{
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=$2
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
+	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
+    if [ $? -eq 0 ]
+    then
+        docker image prune
+        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed success!"
+    else
+        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
+    fi
+}
+
+build_rksdk1126()
+{
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=$2
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    echoY "Building docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
+
+    cp Dockerfile_rksdk1126.img Dockerfile_rksdk1126.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+    sed -i "s/DOCKER_USER_NAME/${TARGET_USER_NAME}/" ./Dockerfile_rksdk1126.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+    sed -i "s/DOCKER_TARGET_ARCH/${TARGET_ARCH}/" ./Dockerfile_rksdk1126.img_${TARGET_USER_NAME}_${TARGET_ARCH}
+
+    docker build --rm -t ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} \
+        -f ./Dockerfile_rksdk1126.img_${TARGET_USER_NAME}_${TARGET_ARCH} .
+
+    if [ $? -eq 0 ]
+    then
+        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} built success."
+    else
+        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} built fail."
+    fi
+
+}
+
+clean_rksdk1126()
+{
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=$2
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
+	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
+    if [ $? -eq 0 ]
+    then
+        docker image prune
+        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed success!"
+    else
+        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
+    fi
+}
+
 
 
 clean_items_func()
@@ -84,8 +167,8 @@ usage_func()
 
     echoY "Usage:"
     echoY './run.sh -c <cmd> -l "<item list>"'
-    echoY "eg:\n./run.sh -c clean -l \"rk3568\""
-    echoY "eg:\n./run.sh -c build -l \"rk3568\""
+    echoY "eg:\n./run.sh -c clean -l \"rksdk1126,rksdk3568,base\""
+    echoY "eg:\n./run.sh -c build -l \"base,rksdk1126,rksdk3568\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"
