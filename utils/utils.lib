@@ -1,0 +1,20 @@
+
+clean_docker_image()
+{
+    local docker_target=$1
+
+    set +e
+
+    echoY "Cleaning docker image ${docker_target} ..." 
+	docker rmi -f ${docker_target}
+    if [ $? -eq 0 ]
+    then
+        docker image prune
+        echoG "Docker image ${docker_target} removed success!"
+    else
+        echoR "Docker image ${docker_target} removed fail!"
+    fi
+
+    set -e
+}
+

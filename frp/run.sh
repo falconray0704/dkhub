@@ -1,53 +1,34 @@
 #!/bin/bash
 
-# refer to:
-# https://www.cnblogs.com/kevingrace/p/11753294.html
+set -o nounset
+set -o errexit
+# trace each command execute, same as `bash -v myscripts.sh`
+#set -o verbose
+# trace each command execute with attachment infomations, same as `bash -x myscripts.sh`
+#set -o xtrace
 
 #set -o
 set -e
 #set -x
 
-. ../libShell/echo_color.lib
-. ../libShell/utils.lib
+export LIBSHELL_ROOT_PATH=${PWD}/../libShell
 
-source .env_host
+. ${LIBSHELL_ROOT_PATH}/echo_color.lib
+. ${LIBSHELL_ROOT_PATH}/utils.lib
+. ${LIBSHELL_ROOT_PATH}/sysEnv.lib
+. ./.env_setup
 
-RELEASE_BIN_FILE_NAME="frp_${VERSION_RELEASE_FRP}_${OS_TARGET}_${ARCH_TARGET}.tar.gz" 
-RELEASE_SRC_FILE_NAME="v${VERSION_RELEASE_FRP}.tar.gz" 
+. ../utils/utils.lib
+. ./.docker_vars
 
-SUPPORTED_CMD="get,build"
+SUPPORTED_CMD="get,clean,build"
 SUPPORTED_TARGETS="releaseBin,releaseSrc,frpDockerImg"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
 
-#EXEC_CMD_TARGET=""
-
-clean_docker_image()
-{
-    local docker_target=$1
-
-    set +e
-	docker rmi -f ${docker_target}
-	docker image prune
-    set -e
-}
-
-get_items_func()
-{
-    local exec_cmd=$1
-    local exec_items_list=$2
-
-    exec_items_iterator ${exec_cmd} ${exec_items_list} 
-}
-
-build_items_func()
-{
-    local exec_cmd=$1
-    local exec_items_list=$2
-
-    exec_items_iterator ${exec_cmd} ${exec_items_list} 
-}
+RELEASE_BIN_FILE_NAME="frp_${VERSION_RELEASE_FRP}_${OSENV_DOCKER_OS}_${OSENV_DOCKER_CPU_ARCH}.tar.gz" 
+RELEASE_SRC_FILE_NAME="v${VERSION_RELEASE_FRP}.tar.gz" 
 
 mkdirs_get_releaseBin()
 {
@@ -121,6 +102,17 @@ get_releaseSrc()
     ls -al ${DOWNLOAD_DIR}
 }
 
+clean_frpDockerImg()
+{
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=${FRP_DOCKER_NAME}
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    local DOCKER_TARGET=${TARGET_USER_NAME}/${TARGET_ARCH}_${FRP_DOCKER_NAME}:${VERSION_RELEASE_FRP} 
+
+    clean_docker_image ${DOCKER_TARGET}
+}
+
 build_frpDockerImg()
 {
     local exec_cmd=$1
@@ -131,7 +123,11 @@ build_frpDockerImg()
     tar -zxf ${RELEASE_BIN_FILE_NAME}
     popd
 
-    local DOCKER_TARGET=${FRP_DOCKER_REPO}/${FRP_DOCKER_NAME}:${FRP_DOCKER_TAG} 
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=${FRP_DOCKER_NAME}
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    local DOCKER_TARGET=${TARGET_USER_NAME}/${TARGET_ARCH}_${FRP_DOCKER_NAME}:${VERSION_RELEASE_FRP} 
 
     echoY "Removing docker image ${DOCKER_TARGET} ..."
 
@@ -158,6 +154,7 @@ usage_func()
     echoY "Usage:"
     echoY './run.sh -c <cmd> -l "<item list>"'
     echoY "eg:\n./run.sh -c get -l \"releaseBin,releaseSrc\""
+    echoY "eg:\n./run.sh -c clean -l \"frpDockerImg\""
     echoY "eg:\n./run.sh -c build -l \"frpDockerImg\""
 
     echoC "Supported cmd:"
@@ -202,10 +199,13 @@ done
 
 case ${EXEC_CMD} in
     "get")
-        get_items_func ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        get_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        ;;
+    "clean")
+        clean_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
         ;;
     "build")
-        build_items_func ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        build_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
         ;;
     "*")
         echoR "Unsupport cmd:${EXEC_CMD}"

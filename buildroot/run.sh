@@ -7,13 +7,19 @@ set -o errexit
 # trace each command execute with attachment infomations, same as `bash -x myscripts.sh`
 #set -o xtrace
 
+#set -o
+set -e
+#set -x
 
-. ../libShell/echo_color.lib
-. ../libShell/utils.lib
-. ../libShell/sysEnv.lib
+export LIBSHELL_ROOT_PATH=${PWD}/../libShell
 
-. ./.docker_vars
+. ${LIBSHELL_ROOT_PATH}/echo_color.lib
+. ${LIBSHELL_ROOT_PATH}/utils.lib
+. ${LIBSHELL_ROOT_PATH}/sysEnv.lib
 . ./.env_setup
+
+. ../utils/utils.lib
+. ./.docker_vars
 
 SUPPORTED_CMD="build,clean"
 SUPPORTED_TARGETS="base,rksdk3568,rksdk1126"
@@ -51,15 +57,7 @@ clean_base()
     local TARGET_NAME=$2
     local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
 
-    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building buildroot SDK..."
-	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
-    if [ $? -eq 0 ]
-    then
-        docker image prune
-        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed success!"
-    else
-        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
-    fi
+    clean_docker_image "${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}"
 }
 
 build_rksdk3568()
@@ -92,15 +90,8 @@ clean_rksdk3568()
     local TARGET_NAME=$2
     local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
 
-    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
-	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
-    if [ $? -eq 0 ]
-    then
-        docker image prune
-        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed success!"
-    else
-        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
-    fi
+    clean_docker_image "${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}"
+
 }
 
 build_rksdk1126()
@@ -133,33 +124,7 @@ clean_rksdk1126()
     local TARGET_NAME=$2
     local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
 
-    echoY "Cleanning docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} for building RK SDK..."
-	docker rmi -f ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}
-    if [ $? -eq 0 ]
-    then
-        docker image prune
-        echoG "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed success!"
-    else
-        echoR "Docker image ${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME} removed fail!"
-    fi
-}
-
-
-
-clean_items_func()
-{
-    local exec_cmd=$1
-    local exec_items_list=$2
-
-    exec_items_iterator ${exec_cmd} ${exec_items_list} 
-}
-
-build_items_func()
-{
-    local exec_cmd=$1
-    local exec_items_list=$2
-
-    exec_items_iterator ${exec_cmd} ${exec_items_list} 
+    clean_docker_image "${TARGET_USER_NAME}/${TARGET_ARCH}_buildroot_sdk:${TARGET_NAME}"
 }
 
 usage_func()
@@ -213,10 +178,10 @@ done
 
 case ${EXEC_CMD} in
     "clean")
-        clean_items_func ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        clean_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
         ;;
     "build")
-        build_items_func ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        build_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
         ;;
     "*")
         echoR "Unsupport cmd:${EXEC_CMD}"
