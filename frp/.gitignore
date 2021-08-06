@@ -5,3 +5,5 @@ downloads
 *.zip
 *.xz
 
+.env_setup
+
