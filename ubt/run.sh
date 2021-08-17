@@ -21,11 +21,25 @@ export LIBSHELL_ROOT_PATH=${PWD}/../libShell
 . ../utils/utils.lib
 . ./.docker_vars
 
-SUPPORTED_CMD="build,clean"
+SUPPORTED_CMD="build,clean,start,stop"
 SUPPORTED_TARGETS="base_bionic"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
+
+start_base_bionic()
+{
+    export IMAGE_TAG="base_bionic"
+    export DOCKER_ARCH=${OSENV_DOCKER_CPU_ARCH}
+    docker-compose up
+}
+
+stop_base_bionic()
+{
+    export IMAGE_TAG="base_bionic"
+    export DOCKER_ARCH=${OSENV_DOCKER_CPU_ARCH}
+    docker-compose down
+}
 
 build_base_bionic()
 {
@@ -67,6 +81,8 @@ usage_func()
     echoY './run.sh -c <cmd> -l "<item list>"'
     echoY "eg:\n./run.sh -c clean -l \"base_bionic\""
     echoY "eg:\n./run.sh -c build -l \"base_bionic\""
+    echoY "eg:\n./run.sh -c start -l \"base_bionic\""
+    echoY "eg:\n./run.sh -c stop -l \"base_bionic\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"
@@ -115,6 +131,12 @@ case ${EXEC_CMD} in
         ;;
     "build")
         build_items ${EXEC_CMD} ${EXEC_ITEMS_LIST}
+        ;;
+    "start")
+        start_base_bionic
+        ;;
+    "stop")
+        stop_base_bionic
         ;;
     "*")
         echoR "Unsupport cmd:${EXEC_CMD}"
