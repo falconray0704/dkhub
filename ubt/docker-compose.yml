@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  ubuntu_base:
+    image: ${DOCKER_USER_NAME}/${DOCKER_ARCH}_ubuntu:${IMAGE_TAG}
+    container_name: ubuntu_base
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    entrypoint: 'date +%Z-%Y/%m/%d-%H:%M:%S'
+
