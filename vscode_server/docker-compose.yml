@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  code-server:
+    image: ${DOCKER_USER_NAME}/${OSENV_DOCKER_CPU_ARCH}_vscode_server
+    container_name: code-server
+    network_mode: bridge
+    environment:
+      - PUID=0
+      - PGID=0
+        #      - PUID=${uid}
+        #      - PGID=${gid}
+      #      - TZ=Asia/Shanghai
+      #      - PASSWORD=xxxx  #optional
+#      - HASHED_PASSWORD= #optional
+#      - SUDO_PASSWORD=abcd #optional
+#      - SUDO_PASSWORD_HASH= #optional
+#      - PROXY_DOMAIN=xxx.kelu.org #optional
+    volumes:
+      - "${HOST_VSCODE_SERVER_CONFIG_PATH}:/home/${USER}/.config"
+      - "${HOST_PROJECT_PATH}:/home/${USER}/${HOST_PROJECT_DIR}"
+    ports:
+      - 8080:8080
+    entrypoint: [ /usr/bin/entrypoint.sh, "--bind-addr", "0.0.0.0:8080", "/home/${USER}/${HOST_PROJECT_DIR}" ]
+    restart: unless-stopped
+

@@ -1,0 +1,10 @@
+
+*.swp
+
+*.img.x86_64
+*.img.armv7l
+
+*.xz
+
+Dockerfile_*.img_*
+

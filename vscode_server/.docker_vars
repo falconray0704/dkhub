@@ -1,0 +1,4 @@
+
+export DOCKER_USER_NAME=rayruan
+export VSCODE_REL_VERSION="3.11.1"
+
