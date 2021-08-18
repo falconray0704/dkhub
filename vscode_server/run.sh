@@ -70,13 +70,13 @@ build_vscode_server()
     if [ -d sysCfg/.git ]
     then
         pushd sysCfg
-        git fetch origin vscode_server
+#        git fetch origin vscode_server
         git pull
-        git checkout vscode_server
+#        git checkout vscode_server
         popd
     else
         git clone https://github.com/falconray0704/sysCfg.git
-        git checkout vscode_server
+#        git checkout vscode_server
     fi
     pushd sysCfg
     git submodule init
