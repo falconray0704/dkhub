@@ -30,7 +30,7 @@ fi
 . ./.docker_vars
 
 SUPPORTED_CMD="get,clean,build"
-SUPPORTED_TARGETS="releaseBin,releaseSrc,frpDockerImg"
+SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImg,srcBinImg,Img"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
@@ -110,7 +110,7 @@ get_releaseSrc()
     ls -al ${DOWNLOAD_DIR}
 }
 
-clean_frpDockerImg()
+clean_Img()
 {
     local TARGET_USER_NAME=${DOCKER_USER_NAME}
     local TARGET_NAME=${FRP_DOCKER_NAME}
@@ -121,7 +121,7 @@ clean_frpDockerImg()
     clean_docker_image ${DOCKER_TARGET}
 }
 
-build_frpDockerImg()
+build_releaseBinImg()
 {
     local exec_cmd=$1
     local exec_item=$2
@@ -156,14 +156,90 @@ build_frpDockerImg()
     fi
 }
 
+build_releaseSrc()
+{
+    local exec_cmd=$1
+    local exec_item=$2
+
+    echoY "Building frp ${VERSION_RELEASE_FRP} from source ${RELEASE_SRC_FILE_NAME} ..."
+
+    pushd ${DOWNLOAD_DIR}
+    if [ -f ${RELEASE_SRC_FILE_NAME} ]
+    then
+        set +e
+        rm -rf "frp-${VERSION_RELEASE_FRP}"
+        tar -zxf ${RELEASE_SRC_FILE_NAME}
+        if [ $? -eq 0 ]
+        then
+            pushd frp-${VERSION_RELEASE_FRP}
+            ./package.sh
+            popd
+        fi
+        set -e
+    else
+        echoR "Can not find ${RELEASE_SRC_FILE_NAME}, please get the source first!"
+        exit 1
+    fi
+    popd
+
+    if [ $? -eq 0 ]
+    then
+        echoG "Downloading ${VERSION_RELEASE_FRP} frp source success!"
+        ls -al ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin
+    fi
+
+}
+
+build_srcBinImg()
+{
+    local exec_cmd=$1
+    local exec_item=$2
+
+    if [ ! -f ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin/frps ]
+    then
+        echoR "Can not find ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin/frps, build it from source first!"
+        exit 1
+    fi
+
+    local TARGET_USER_NAME=${DOCKER_USER_NAME}
+    local TARGET_NAME=${FRP_DOCKER_NAME}
+    local TARGET_ARCH=${OSENV_DOCKER_CPU_ARCH}
+
+    local DOCKER_TARGET=${TARGET_USER_NAME}/${TARGET_ARCH}_${FRP_DOCKER_NAME}:${VERSION_RELEASE_FRP} 
+
+    echoY "Removing docker image ${DOCKER_TARGET} ..."
+
+    clean_docker_image ${DOCKER_TARGET}
+    #sudo cp ./configs/config.json ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
+    #sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
+
+    echoY "Building docker image ${DOCKER_TARGET} ..."
+    rm -rf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
+    cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
+    cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf/*.ini ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin/
+    docker build --rm -t ${DOCKER_TARGET} -f ./Dockerfile ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
+
+    if [ $? -eq 0 ]
+    then
+        echoY "Building docker image ${DOCKER_TARGET} success!"
+    else
+        echoR "Building docker image ${DOCKER_TARGET} fail!"
+        clean_docker_image ${DOCKER_TARGET}
+        exit 1
+    fi
+}
+
 usage_func()
 {
 
     echoY "Usage:"
     echoY './run.sh -c <cmd> -l "<item list>"'
-    echoY "eg:\n./run.sh -c get -l \"releaseBin,releaseSrc\""
-    echoY "eg:\n./run.sh -c clean -l \"frpDockerImg\""
-    echoY "eg:\n./run.sh -c build -l \"frpDockerImg\""
+    echoY "eg:\n./run.sh -c get -l \"releaseBin\""
+    echoY "eg:\n./run.sh -c get -l \"releaseSrc\""
+    echoY "eg:\n./run.sh -c clean -l \"Img\""
+    echoY "eg:\n./run.sh -c build -l \"releaseBinImg\""
+    echoY "eg:\n./run.sh -c build -l \"releaseSrc\""
+    echoY "eg:\n./run.sh -c build -l \"srcBinImg\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"
