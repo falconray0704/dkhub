@@ -30,13 +30,15 @@ fi
 . ./.docker_vars
 
 SUPPORTED_CMD="get,clean,build"
-SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImg,srcBinImg,Img"
+SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImgSocat,releaseBinImg,srcBinImgSocat,srcBinImg,ImgSocat,Img"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
 
 RELEASE_BIN_FILE_NAME="frp_${VERSION_RELEASE_FRP}_${OSENV_DOCKER_OS}_${OSENV_DOCKER_CPU_ARCH}.tar.gz" 
 RELEASE_SRC_FILE_NAME="v${VERSION_RELEASE_FRP}.tar.gz" 
+
+DOCKER_FILE_NAME="Dockerfile"
 
 mkdirs_get_releaseBin()
 {
@@ -144,7 +146,7 @@ build_releaseBinImg()
     #sudo cp ./configs/*.service ${PWD}/${BUILD_DIR}/dist/${ARCH}/bin/
 
     echoY "Building docker image ${DOCKER_TARGET} ..."
-    docker build --rm -t ${DOCKER_TARGET} -f ./Dockerfile ${RELEASE_BIN_PATH}
+    docker build --rm -t ${DOCKER_TARGET} -f ./${DOCKER_FILE_NAME} ${RELEASE_BIN_PATH}
 
     if [ $? -eq 0 ]
     then
@@ -217,7 +219,7 @@ build_srcBinImg()
     rm -rf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
     cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
     cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf/*.ini ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin/
-    docker build --rm -t ${DOCKER_TARGET} -f ./Dockerfile ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
+    docker build --rm -t ${DOCKER_TARGET} -f ./${DOCKER_FILE_NAME} ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
 
     if [ $? -eq 0 ]
     then
@@ -229,6 +231,33 @@ build_srcBinImg()
     fi
 }
 
+clean_ImgSocat()
+{
+	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
+    clean_Img
+}
+
+build_srcBinImgSocat()
+{
+    local exec_cmd=$1
+    local exec_item=$2
+
+	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
+	DOCKER_FILE_NAME="Dockerfile_socat"
+	build_srcBinImg ${exec_cmd} ${exec_item}
+}
+
+build_releaseBinImgSocat()
+{
+    local exec_cmd=$1
+    local exec_item=$2
+
+	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
+	DOCKER_FILE_NAME="Dockerfile_socat"
+	build_releaseBinImg ${exec_cmd} ${exec_item}
+}
+
+
 usage_func()
 {
 
@@ -237,9 +266,12 @@ usage_func()
     echoY "eg:\n./run.sh -c get -l \"releaseBin\""
     echoY "eg:\n./run.sh -c get -l \"releaseSrc\""
     echoY "eg:\n./run.sh -c clean -l \"Img\""
+    echoY "eg:\n./run.sh -c clean -l \"ImgSocat\""
     echoY "eg:\n./run.sh -c build -l \"releaseBinImg\""
+    echoY "eg:\n./run.sh -c build -l \"releaseBinImgSocat\""
     echoY "eg:\n./run.sh -c build -l \"releaseSrc\""
     echoY "eg:\n./run.sh -c build -l \"srcBinImg\""
+    echoY "eg:\n./run.sh -c build -l \"srcBinImgSocat\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"
