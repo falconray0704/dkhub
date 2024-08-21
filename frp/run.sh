@@ -218,7 +218,8 @@ build_srcBinImg()
     echoY "Building docker image ${DOCKER_TARGET} ..."
     rm -rf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
     cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/bin ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
-    cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf/*.ini ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin/
+#    cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf/*.ini ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin/
+    cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf/*.toml ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin/
     docker build --rm -t ${DOCKER_TARGET} -f ./${DOCKER_FILE_NAME} ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/img_bin
 
     if [ $? -eq 0 ]
