@@ -30,7 +30,7 @@ fi
 . ./.docker_vars
 
 SUPPORTED_CMD="get,clean,build"
-SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImgSocat,releaseBinImg,srcBinImgSocat,srcBinImg,ImgSocat,Img"
+SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImgSocat,releaseBinImg,srcBinImgSocat,srcBinImg,ImgSocat,Img,srcBinImgMulti"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
@@ -39,6 +39,7 @@ RELEASE_BIN_FILE_NAME="frp_${VERSION_RELEASE_FRP}_${OSENV_DOCKER_OS}_${OSENV_DOC
 RELEASE_SRC_FILE_NAME="v${VERSION_RELEASE_FRP}.tar.gz" 
 
 DOCKER_FILE_NAME="Dockerfile"
+DOCKER_HUB_PROJECT="rayruan/frp"
 
 mkdirs_get_releaseBin()
 {
@@ -192,6 +193,98 @@ build_releaseSrc()
 
 }
 
+build_srcBinImgMulti()
+{
+
+    if [ ! -d ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages ]
+    then
+        echoR "Can not find ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/package, please build the source first!"
+        exit 1
+    else
+
+        echoY "Going to build docker images with forllowing relese packages!"
+		ls -al ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages
+
+		local DOCKER_IMAGE_MULTI_BUILD_DIR=docker_image_multi
+
+		rm -rf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}
+		mkdir -p ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}
+
+		local webDAV_server="192.168.122.86"
+		docker container run --rm \
+		  --name frp_webDAV \
+		  -p ${webDAV_server}:1080:80 \
+		  -v ./${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}:/data \
+		  -e PUID=1000 \
+		  -e PGID=1000 \
+		  -d \
+		  dgraziotin/nginx-webdav-nononsense
+
+		sleep 3
+
+
+		local os_all='linux'
+		local arch_all='amd64 arm arm_hf arm64 riscv64'
+		local platform_arch_all='linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/riscv64'
+		local extra_all='_ hf'
+		local frp_version=${VERSION_RELEASE_FRP}
+		local DOCKER_PLATFORM_ARCH=""
+
+		if [[ "${DOCKER_FILE_NAME}" == *"socat"* ]]; then
+			arch_all='amd64 arm arm_hf arm64'
+			platform_arch_all='linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64'
+		fi
+
+		for os in $os_all; do
+			for arch in $arch_all; do
+				suffix="${os}_${arch}"
+
+				if [ ${arch} == "arm" ]
+				then
+					DOCKER_PLATFORM_ARCH="arm/v6"
+				elif [ ${arch} == "arm_hf" ]
+				then
+					DOCKER_PLATFORM_ARCH="arm/v7"
+				else
+					DOCKER_PLATFORM_ARCH=${arch}
+				fi
+
+				frp_dir_name="frp_${frp_version}_${suffix}"
+
+				if [ ! -f ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages/${frp_dir_name}.tar.gz ]
+				then
+					echoR "Can not find ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages/${frp_dir_name}.tar.gz !"
+					exit 1
+				fi
+
+				tar -zxf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages/${frp_dir_name}.tar.gz -C ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
+
+			done
+		done
+
+		cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
+#		cp ${DOCKER_FILE_NAME}_multiplatform ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_FILE_NAME}
+		cp ./target_install_frp.sh ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/
+
+		docker buildx build --progress=plain \
+			--platform=${platform_arch_all} \
+			--build-arg VERSION_RELEASE_FRP=${VERSION_RELEASE_FRP} \
+			--build-arg DOCKER_IMAGE_MULTI_BUILD_DIR=${DOCKER_IMAGE_MULTI_BUILD_DIR} \
+			--build-arg WEBDAV_SERVER=${webDAV_server} \
+			-t ${DOCKER_HUB_PROJECT}:${VERSION_RELEASE_FRP} \
+			-f ./${DOCKER_FILE_NAME}_multiplatform \
+			${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/ \
+			--push
+
+    fi
+
+#	tree -al ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
+
+	docker container kill frp_webDAV
+	exit 0
+
+}
+
 build_srcBinImg()
 {
     local exec_cmd=$1
@@ -232,6 +325,8 @@ build_srcBinImg()
     fi
 }
 
+
+
 clean_ImgSocat()
 {
 	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
@@ -246,6 +341,17 @@ build_srcBinImgSocat()
 	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
 	DOCKER_FILE_NAME="Dockerfile_socat"
 	build_srcBinImg ${exec_cmd} ${exec_item}
+}
+
+build_srcBinImgSocatMulti()
+{
+    local exec_cmd=$1
+    local exec_item=$2
+
+	FRP_DOCKER_NAME="${FRP_DOCKER_NAME}_socat"
+	DOCKER_FILE_NAME="Dockerfile_socat"
+	DOCKER_HUB_PROJECT="rayruan/frp_socat"
+	build_srcBinImgMulti ${exec_cmd} ${exec_item}
 }
 
 build_releaseBinImgSocat()
@@ -273,6 +379,8 @@ usage_func()
     echoY "eg:\n./run.sh -c build -l \"releaseSrc\""
     echoY "eg:\n./run.sh -c build -l \"srcBinImg\""
     echoY "eg:\n./run.sh -c build -l \"srcBinImgSocat\""
+    echoY "eg:\n./run.sh -c build -l \"srcBinImgMulti\""
+    echoY "eg:\n./run.sh -c build -l \"srcBinImgSocatMulti\""
 
     echoC "Supported cmd:"
     echo "${SUPPORTED_CMD}"

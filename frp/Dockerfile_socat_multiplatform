@@ -1,0 +1,21 @@
+FROM alpine/socat:1.8.0.0
+
+
+# Use the predefined build argument TARGETPLATFORM
+ARG TARGETPLATFORM
+ARG VERSION_RELEASE_FRP
+ARG DOCKER_IMAGE_MULTI_BUILD_DIR
+ARG WEBDAV_SERVER
+
+RUN mkdir -p /app /etc/frp
+
+WORKDIR /app
+
+COPY $DOCKER_IMAGE_MULTI_BUILD_DIR/conf/frp*toml /etc/frp/
+
+COPY target_install_frp.sh /app
+RUN chmod +x /app/target_install_frp.sh
+
+# Run the shell script with $TARGETPLATFORM as an argument
+RUN /app/target_install_frp.sh "$TARGETPLATFORM" "$VERSION_RELEASE_FRP" "$DOCKER_IMAGE_MULTI_BUILD_DIR" "$WEBDAV_SERVER"
+
