@@ -30,7 +30,7 @@ fi
 . ./.docker_vars
 
 SUPPORTED_CMD="get,clean,build"
-SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImgSocat,releaseBinImg,srcBinImgSocat,srcBinImg,ImgSocat,Img,srcBinImgMulti"
+SUPPORTED_TARGETS="releaseBin,releaseSrc,releaseBinImgSocat,releaseBinImg,srcBinImgSocat,srcBinImg,ImgSocat,Img,srcBinImgMulti,test"
 
 EXEC_CMD=""
 EXEC_ITEMS_LIST=""
@@ -195,7 +195,6 @@ build_releaseSrc()
 
 build_srcBinImgMulti()
 {
-
     if [ ! -d ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages ]
     then
         echoR "Can not find ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/package, please build the source first!"
@@ -209,18 +208,6 @@ build_srcBinImgMulti()
 
 		rm -rf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}
 		mkdir -p ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}
-
-		local webDAV_server="192.168.122.86"
-		docker container run --rm \
-		  --name frp_webDAV \
-		  -p ${webDAV_server}:1080:80 \
-		  -v ./${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}:/data \
-		  -e PUID=1000 \
-		  -e PGID=1000 \
-		  -d \
-		  dgraziotin/nginx-webdav-nononsense
-
-		sleep 3
 
 
 		local os_all='linux'
@@ -249,6 +236,8 @@ build_srcBinImgMulti()
 					DOCKER_PLATFORM_ARCH=${arch}
 				fi
 
+				mkdir -p ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/${os}/${DOCKER_PLATFORM_ARCH}
+
 				frp_dir_name="frp_${frp_version}_${suffix}"
 
 				if [ ! -f ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages/${frp_dir_name}.tar.gz ]
@@ -259,18 +248,16 @@ build_srcBinImgMulti()
 
 				tar -zxf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/packages/${frp_dir_name}.tar.gz -C ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
 
+				mv ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/${frp_dir_name} ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/${os}/${DOCKER_PLATFORM_ARCH}/frp
 			done
 		done
 
 		cp -a ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/conf ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
-#		cp ${DOCKER_FILE_NAME}_multiplatform ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_FILE_NAME}
-		cp ./target_install_frp.sh ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/
 
 		docker buildx build --progress=plain \
 			--platform=${platform_arch_all} \
 			--build-arg VERSION_RELEASE_FRP=${VERSION_RELEASE_FRP} \
 			--build-arg DOCKER_IMAGE_MULTI_BUILD_DIR=${DOCKER_IMAGE_MULTI_BUILD_DIR} \
-			--build-arg WEBDAV_SERVER=${webDAV_server} \
 			-t ${DOCKER_HUB_PROJECT}:${VERSION_RELEASE_FRP} \
 			-f ./${DOCKER_FILE_NAME}_multiplatform \
 			${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/ \
@@ -280,8 +267,8 @@ build_srcBinImgMulti()
 
 #	tree -al ${DOWNLOAD_DIR}/frp-${VERSION_RELEASE_FRP}/release/${DOCKER_IMAGE_MULTI_BUILD_DIR}/
 
-	docker container kill frp_webDAV
 	exit 0
+
 
 }
 
